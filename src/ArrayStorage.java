@@ -3,34 +3,35 @@
  */
 public class ArrayStorage {
     private Resume[] storage = new Resume[10000];
-    private static int arraySize = 0;
+    private static int countResume = 0;
 
     void clear() {
-        storage = null;
-        arraySize = 0;
+        for (int i = 0; i < countResume; i++) {
+            storage[i] = null;
+        }
+        countResume = 0;
     }
 
     void save(Resume r) {
-        if (storage == null) {
-            storage = new Resume[10000];
-        }
-        if (r.uuid != null) {
+        String uuid = r.uuid;
+        if (uuid != null) {
             boolean isUuid = false;
-            for (int i = 0; i < arraySize; i++) {
-                if (storage[i].uuid.equals(r.uuid)) {
+            for (int i = 0; i < countResume; i++) {
+                if (storage[i].uuid.equals(uuid)) {
                     isUuid = true;
+                    break;
                 }
             }
             if (!isUuid) {
-                storage[arraySize] = r;
-                arraySize++;
+                storage[countResume] = r;
+                countResume++;
             }
         }
     }
 
     Resume get(String uuid) {
         if (uuid != null) {
-            for (int i = 0; i < arraySize; i++) {
+            for (int i = 0; i < countResume; i++) {
                 if (storage[i].uuid.equals(uuid)) {
                     return storage[i];
                 }
@@ -42,28 +43,18 @@ public class ArrayStorage {
     void delete(String uuid) {
         if (uuid != null) {
             boolean isDelete = false;
-            if (arraySize == 1) {
-                if (storage[0].uuid.equals(uuid)) {
-                    storage[0] = null;
+            for (int i = 0; i < countResume; i++) {
+                if (storage[i].uuid.equals(uuid)) {
                     isDelete = true;
-                }
-            } else if (arraySize == 10000 && storage[9999].uuid.equals(uuid)) {
-                storage[9999] = null;
-                isDelete = true;
-
-            } else {
-                for (int i = 0; i < arraySize; i++) {
-                    if (storage[i].uuid.equals(uuid)) {
-                        for (int j = i; j < arraySize - 1; j++) {
-                            storage[j] = storage[j + 1];
-                            isDelete = true;
-                        }
+                    for (int j = i; j < countResume - 1; j++) {
+                        storage[j] = storage[j + 1];
                     }
                 }
             }
-
             if (isDelete) {
-                arraySize--;
+                countResume--;
+                storage[countResume] = null;
+
             }
         }
     }
@@ -72,17 +63,14 @@ public class ArrayStorage {
      * @return array, contains only Resumes in storage (without null)
      */
     Resume[] getAll() {
-        if (storage != null) {
-            Resume[] onlyResume = new Resume[arraySize];
-            for (int i = 0; i < arraySize; i++) {
-                onlyResume[i] = storage[i];
-            }
-            return onlyResume;
+        Resume[] onlyResume = new Resume[countResume];
+        for (int i = 0; i < countResume; i++) {
+            onlyResume[i] = storage[i];
         }
-        return new Resume[0];
+        return onlyResume;
     }
 
     int size() {
-        return arraySize;
+        return countResume;
     }
 }
