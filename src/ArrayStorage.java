@@ -15,17 +15,14 @@ public class ArrayStorage {
     void save(Resume r) {
         String uuid = r.uuid;
         if (uuid != null) {
-            boolean isUuid = false;
             for (int i = 0; i < countResume; i++) {
                 if (storage[i].uuid.equals(uuid)) {
-                    isUuid = true;
-                    break;
+                    return;
                 }
             }
-            if (!isUuid) {
-                storage[countResume] = r;
-                countResume++;
-            }
+            storage[countResume] = r;
+            countResume++;
+
         }
     }
 
