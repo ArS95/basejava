@@ -67,6 +67,7 @@ public class ArrayStorage {
             }
             if (isDelete) {
                 countResume--;
+
                 storage[countResume] = null;
             }
         }
