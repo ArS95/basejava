@@ -2,8 +2,6 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.model.Resume;
 
-import java.util.Arrays;
-
 /**
  * Array based storage for Resumes
  */
@@ -34,15 +32,23 @@ public class ArrayStorage {
         int count = isCheckStorage(uuid);
         if (count != -1) {
             storage[count] = r;
+        } else {
+            System.out.println("Resume is not find.");
         }
     }
 
     public void save(Resume r) {
-        String uuid = r.getUuid();
-        int count = isCheckStorage(uuid);
-        if (count == -1) {
-            storage[countResume] = r;
-            countResume++;
+        if (countResume != 10000) {
+            String uuid = r.getUuid();
+            int count = isCheckStorage(uuid);
+            if (count == -1) {
+                storage[countResume] = r;
+                countResume++;
+            } else {
+                System.out.println("Resume is not saved, it have in storage.");
+            }
+        } else {
+            System.out.println("Resume storage is full.");
         }
     }
 
@@ -50,6 +56,8 @@ public class ArrayStorage {
         int count = isCheckStorage(uuid);
         if (count != -1) {
             return storage[count];
+        } else {
+            System.out.println("Resume is not find.");
         }
         return null;
     }
@@ -67,8 +75,9 @@ public class ArrayStorage {
             }
             if (isDelete) {
                 countResume--;
-
                 storage[countResume] = null;
+            } else {
+                System.out.println("Resume is not find.");
             }
         }
     }
