@@ -7,30 +7,20 @@ import java.util.Arrays;
 public class SortedArrayStorage extends AbstractArrayStorage {
 
     @Override
-    public void clear() {
-        Arrays.fill(storage, 0, countResume, null);
-        countResume = 0;
-    }
-
-    @Override
-    public void update(Resume resume) {
-        String uuid = resume.getUuid();
-        int index = getIndex(uuid);
-        if (index >= 0) {
-            storage[index] = resume;
-        } else {
-            System.out.println("Resume " + resume.getUuid() + " not exist.");
-        }
-    }
-
-    @Override
     public void save(Resume resume) {
-        if (countResume != STORAGE_LIMIT) {
-            String uuid = resume.getUuid();
-            int index = getIndex(uuid);
-            if (index <= 0) {
-                storage[countResume] = resume;
-                countResume++;
+        if (size != STORAGE_LIMIT) {
+            if (getIndex(resume.getUuid()) < 0) {
+                if (size > 0) {
+                    if (storage[size - 1].compareTo(resume) > 0) {
+                        sort(resume);
+                    } else {
+                        storage[size] = resume;
+                        size++;
+                    }
+                } else {
+                    storage[0] = resume;
+                    size++;
+                }
             } else {
                 System.out.println("Resume " + resume.getUuid() + " already exist.");
             }
@@ -39,15 +29,30 @@ public class SortedArrayStorage extends AbstractArrayStorage {
         }
     }
 
+    private void sort(Resume resume) {
+        storage[size] = resume;
+        size++;
+        boolean isSorted = false;
+        while (!isSorted) {
+            isSorted = true;
+            for (int j = 0; j < size - 1; j++) {
+                if (storage[j].compareTo(storage[j + 1]) > 0) {
+                    Resume replace = storage[j];
+                    storage[j] = storage[j + 1];
+                    storage[j + 1] = replace;
+                    isSorted = false;
+                }
+            }
+        }
+    }
+
     @Override
     public void delete(String uuid) {
         int index = getIndex(uuid);
         if (index >= 0) {
-            for (int i = index; i < countResume - 1; i++) {
-                storage[i] = storage[i + 1];
-            }
-            storage[countResume - 1] = null;
-            countResume--;
+            System.arraycopy(storage, index + 1, storage, index, size - index - 1);
+            storage[size - 1] = null;
+            size--;
         } else {
             System.out.println("Resume " + uuid + " not exist.");
         }
@@ -56,15 +61,11 @@ public class SortedArrayStorage extends AbstractArrayStorage {
     /**
      * @return array, contains only Resumes in storage (without null)
      */
-    @Override
-    public Resume[] getAll() {
-        return Arrays.copyOf(storage, countResume);
-    }
 
     @Override
     protected int getIndex(String uuid) {
         Resume searchKey = new Resume();
         searchKey.setUuid(uuid);
-        return Arrays.binarySearch(storage, 0, countResume, searchKey);
+        return Arrays.binarySearch(storage, 0, size, searchKey);
     }
 }
