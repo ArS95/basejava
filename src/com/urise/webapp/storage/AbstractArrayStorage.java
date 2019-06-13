@@ -27,7 +27,7 @@ public abstract class AbstractArrayStorage implements Storage {
     }
 
     @Override
-    public abstract void save(Resume resume);
+    public  abstract void save(Resume resume);
 
     @Override
     public Resume get(String uuid) {

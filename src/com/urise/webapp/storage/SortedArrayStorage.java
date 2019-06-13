@@ -9,40 +9,18 @@ public class SortedArrayStorage extends AbstractArrayStorage {
     @Override
     public void save(Resume resume) {
         if (size != STORAGE_LIMIT) {
-            if (getIndex(resume.getUuid()) < 0) {
-                if (size > 0) {
-                    if (storage[size - 1].compareTo(resume) > 0) {
-                        sort(resume);
-                    } else {
-                        storage[size] = resume;
-                        size++;
-                    }
-                } else {
-                    storage[0] = resume;
-                    size++;
-                }
+            String uuid = resume.getUuid();
+            int index = getIndex(uuid);
+            if (index < 0) {
+                int newIndex = -index - 1;
+                System.arraycopy(storage, newIndex, storage, newIndex+1, size - newIndex + 1);
+                storage[newIndex] = resume;
+                size++;
             } else {
-                System.out.println("Resume " + resume.getUuid() + " already exist.");
+                System.out.println("Resume " + uuid + " already exist.");
             }
         } else {
             System.out.println("Storage overflow.");
-        }
-    }
-
-    private void sort(Resume resume) {
-        storage[size] = resume;
-        size++;
-        boolean isSorted = false;
-        while (!isSorted) {
-            isSorted = true;
-            for (int j = 0; j < size - 1; j++) {
-                if (storage[j].compareTo(storage[j + 1]) > 0) {
-                    Resume replace = storage[j];
-                    storage[j] = storage[j + 1];
-                    storage[j + 1] = replace;
-                    isSorted = false;
-                }
-            }
         }
     }
 

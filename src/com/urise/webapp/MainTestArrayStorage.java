@@ -3,8 +3,6 @@ package com.urise.webapp;
 import com.urise.webapp.model.Resume;
 import com.urise.webapp.storage.ArrayStorage;
 
-import java.util.Arrays;
-
 /**
  * Test for your com.urise.webapp.storage.ArrayStorage implementation
  */
@@ -32,7 +30,7 @@ public class MainTestArrayStorage {
 
         System.out.println("Get dummy: " + ARRAY_STORAGE.get("dummy"));
 
-        System.out.println("Index of r3: " + Arrays.binarySearch(ARRAY_STORAGE.storage,0,ARRAY_STORAGE.size(),r4));
+//        System.out.println("Index of r3: " + Arrays.binarySearch(ARRAY_STORAGE.storage,0,ARRAY_STORAGE.size(),r4));
 
         printAll();
         ARRAY_STORAGE.delete(r1.getUuid());
