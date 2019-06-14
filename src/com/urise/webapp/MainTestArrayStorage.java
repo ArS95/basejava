@@ -15,7 +15,6 @@ public class MainTestArrayStorage {
         final Resume r3 = new Resume();
         r3.setUuid("uuid3");
 
-
         SORTED_ARRAY_STORAGE.save(r1);
         SORTED_ARRAY_STORAGE.save(r2);
         SORTED_ARRAY_STORAGE.save(r3);
@@ -33,7 +32,6 @@ public class MainTestArrayStorage {
         printAll();
 
         System.out.println("Size: " + SORTED_ARRAY_STORAGE.size());
-
     }
 
     static void printAll() {

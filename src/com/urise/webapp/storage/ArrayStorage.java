@@ -4,26 +4,14 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 public class ArrayStorage extends AbstractArrayStorage {
-
     @Override
     public void save(Resume resume) {
         super.save(resume);
-        if (checkStorage > 0) {
-            storage[size] = resume;
-            size++;
-            checkStorage = 0;
-        }
     }
 
     @Override
     public void delete(String uuid) {
         super.delete(uuid);
-        if (checkStorage > 0) {
-            storage[index] = storage[size - 1];
-            storage[size - 1] = null;
-            size--;
-            checkStorage = 0;
-        }
     }
 
     @Override
@@ -36,5 +24,18 @@ public class ArrayStorage extends AbstractArrayStorage {
             }
         }
         return -1;
+    }
+
+    @Override
+    protected void saved(Resume resume, int index) {
+        storage[size] = resume;
+        size++;
+    }
+
+    @Override
+    protected void deleted(int index) {
+        storage[index] = storage[size - 1];
+        storage[size - 1] = null;
+        size--;
     }
 }
