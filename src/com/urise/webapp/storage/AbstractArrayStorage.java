@@ -1,5 +1,8 @@
 package com.urise.webapp.storage;
 
+import com.urise.webapp.exception.ExistStorageException;
+import com.urise.webapp.exception.NotExistStorageException;
+import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
@@ -23,7 +26,7 @@ public abstract class AbstractArrayStorage implements Storage {
         if (index >= 0) {
             storage[index] = resume;
         } else {
-            System.out.println("Resume " + resume.getUuid() + " not exist.");
+            throw new NotExistStorageException(resume.getUuid());
         }
     }
 
@@ -33,12 +36,12 @@ public abstract class AbstractArrayStorage implements Storage {
             String uuid = resume.getUuid();
             int index = getIndex(uuid);
             if (index < 0) {
-                saved(resume, index);
+                doSave(resume, index);
             } else {
-                System.out.println("Resume " + uuid + " already exist.");
+                throw new ExistStorageException(resume.getUuid());
             }
         } else {
-            System.out.println("Storage overflow.");
+            throw new StorageException("Storage overflow.", resume.getUuid());
         }
     }
 
@@ -48,8 +51,7 @@ public abstract class AbstractArrayStorage implements Storage {
         if (index >= 0) {
             return storage[index];
         } else {
-            System.out.println("Resume " + uuid + " not exist.");
-            return null;
+            throw new NotExistStorageException(uuid);
         }
     }
 
@@ -57,9 +59,9 @@ public abstract class AbstractArrayStorage implements Storage {
     public void delete(String uuid) {
         int index = getIndex(uuid);
         if (index >= 0) {
-            deleted(index);
+            doDelete(index);
         } else {
-            System.out.println("Resume " + uuid + " not exist.");
+            throw new NotExistStorageException(uuid);
         }
     }
 
@@ -75,8 +77,8 @@ public abstract class AbstractArrayStorage implements Storage {
 
     protected abstract int getIndex(String uuid);
 
-    protected abstract void saved(Resume resume, int index);
+    protected abstract void doSave(Resume resume, int index);
 
-    protected abstract void deleted(int index);
+    protected abstract void doDelete(int index);
 
 }
