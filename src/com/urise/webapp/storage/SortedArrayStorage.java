@@ -16,13 +16,11 @@ public class SortedArrayStorage extends AbstractArrayStorage {
         int newIndex = -index - 1;
         System.arraycopy(storage, newIndex, storage, newIndex + 1, size - newIndex);
         storage[newIndex] = resume;
-        size++;
     }
 
     @Override
     protected void doDelete(int index) {
         System.arraycopy(storage, index + 1, storage, index, size - index - 1);
         storage[size - 1] = null;
-        size--;
     }
 }
