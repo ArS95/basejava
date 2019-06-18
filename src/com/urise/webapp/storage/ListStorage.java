@@ -1,13 +1,12 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.exception.ExistStorageException;
-import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListStorage extends AbstractStorage {
-    protected List<Resume> listStorage;
+    private List<Resume> listStorage = new ArrayList<>();
 
     @Override
     public void clear() {
@@ -15,48 +14,25 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    public void update(Resume resume) {
-        int index = getIndex(resume);
-        if (index >= 0) {
-            listStorage.set(index, resume);
-        } else {
-            throw new NotExistStorageException(resume.getUuid());
-        }
+    protected void doUpdate(Resume resume, Object index) {
+        listStorage.set((Integer) index, resume);
     }
 
     @Override
-    public void save(Resume resume) {
-        int index = getIndex(resume);
-        if (index < 0) {
-            listStorage.add(resume);
-        } else {
-            throw new ExistStorageException(resume.getUuid());
-        }
+    protected void doSave(Resume resume, Object index) {
+        listStorage.add(resume);
     }
 
     @Override
-    public Resume get(String uuid) {
-        int index = getIndex(new Resume(uuid));
-        if (index >= 0) {
-            return listStorage.get(index);
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+    protected Resume doGet(Object index) {
+        return listStorage.get((Integer) index);
     }
 
     @Override
-    public void delete(String uuid) {
-        int index = getIndex(new Resume(uuid));
-        if (index >= 0) {
-            listStorage.remove(index);
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+    protected void doDelete(Object index) {
+        listStorage.remove((int) index);
     }
 
-    /**
-     * @return array, contains only Resumes in storage (without null)
-     */
     @Override
     public Resume[] getAll() {
         return listStorage.toArray(new Resume[0]);
@@ -67,7 +43,18 @@ public class ListStorage extends AbstractStorage {
         return listStorage.size();
     }
 
-    private int getIndex(Resume resume) {
-        return listStorage.indexOf(resume);
+    @Override
+    protected Integer getIndex(String uuid) {
+        for (int i = 0; i < listStorage.size(); i++) {
+            if (listStorage.get(i).getUuid().equals(uuid)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    protected boolean isCheckIndex(Object index) {
+        return index instanceof Integer && (Integer) index >= 0;
     }
 }

@@ -1,7 +1,5 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.exception.ExistStorageException;
-import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
@@ -20,51 +18,31 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     }
 
     @Override
-    public void update(Resume resume) {
-        String uuid = resume.getUuid();
-        int index = getIndex(uuid);
-        if (index >= 0) {
-            storage[index] = resume;
-        } else {
-            throw new NotExistStorageException(resume.getUuid());
-        }
+    protected void doUpdate(Resume resume, Object index) {
+        storage[(int) index] = resume;
     }
 
     @Override
-    public void save(Resume resume) {
+    protected void doSave(Resume resume, Object index) {
         if (size != STORAGE_LIMIT) {
-            String uuid = resume.getUuid();
-            int index = getIndex(uuid);
-            if (index < 0) {
-                doSave(resume, index);
-                size++;
-            } else {
-                throw new ExistStorageException(resume.getUuid());
-            }
+            doSaveArray(resume, (Integer) index);
+            size++;
         } else {
             throw new StorageException("Storage overflow.", resume.getUuid());
         }
     }
 
     @Override
-    public Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (index >= 0) {
-            return storage[index];
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+    protected Resume doGet(Object index) {
+        return storage[(int) index];
+
     }
 
     @Override
-    public void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (index >= 0) {
-            doDelete(index);
-            size--;
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+    protected void doDelete(Object index) {
+        doDeleteArray((int) index);
+        storage[size - 1] = null;
+        size--;
     }
 
     @Override
@@ -77,10 +55,13 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         return size;
     }
 
-    protected abstract int getIndex(String uuid);
+    @Override
+    protected boolean isCheckIndex(Object index) {
+        return index instanceof Integer && (Integer) index >= 0;
+    }
 
-    protected abstract void doSave(Resume resume, int index);
+    protected abstract void doSaveArray(Resume resume, int index);
 
-    protected abstract void doDelete(int index);
+    protected abstract void doDeleteArray(int index);
 
 }
