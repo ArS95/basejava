@@ -2,16 +2,15 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.model.Resume;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
-public class MapStorage extends AbstractStorage {
+public class MapUuidStorage extends AbstractStorage {
     private Map<String, Resume> mapStorage = new HashMap<>();
 
     @Override
     protected void doSave(Resume resume, Object index) {
-        mapStorage.put(resume.getUuid(), resume);
+        mapStorage.put((String) index, resume);
     }
 
     @Override
@@ -35,8 +34,10 @@ public class MapStorage extends AbstractStorage {
     }
 
     @Override
-    public Resume[] getAll() {
-        return mapStorage.values().toArray(new Resume[0]);
+    public List<Resume> getAllSorted() {
+        List<Resume> sortedList = new ArrayList<>(mapStorage.values());
+        sortedList.sort(new NameComparator());
+        return sortedList;
     }
 
     @Override
@@ -46,14 +47,11 @@ public class MapStorage extends AbstractStorage {
 
     @Override
     protected String getIndex(String uuid) {
-        if (mapStorage.containsKey(uuid)) {
-            return uuid;
-        }
-        return null;
+        return uuid;
     }
 
     @Override
     protected boolean isCheckIndex(Object index) {
-        return index instanceof String;
+        return index instanceof String && mapStorage.containsKey(index);
     }
 }

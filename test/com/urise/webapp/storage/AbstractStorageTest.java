@@ -6,7 +6,11 @@ import com.urise.webapp.model.Resume;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractStorageTest {
     private static final String UUID_1 = "uuid1";
@@ -17,15 +21,15 @@ public abstract class AbstractStorageTest {
     private static final Resume RESUME_2 = new Resume(UUID_2);
     private static final Resume RESUME_3 = new Resume(UUID_3);
     private static final Resume RESUME_4 = new Resume(UUID_4);
-    private Storage storage;
-
-    protected AbstractStorageTest(Storage storage) {
-        this.storage = storage;
-    }
+    protected Storage storage;
 
     @Before
     public void setUp() throws Exception {
         storage.clear();
+        RESUME_1.setFullName("Zarinaa");
+        RESUME_2.setFullName("Zarinaaa");
+        RESUME_3.setFullName("Zarina");
+        RESUME_4.setFullName("Arsen");
         storage.save(RESUME_1);
         storage.save(RESUME_2);
         storage.save(RESUME_3);
@@ -40,8 +44,10 @@ public abstract class AbstractStorageTest {
     @Test
     public void updateTest() {
         Resume newResume = new Resume(UUID_3);
+        newResume.setFullName("Azamat");
         storage.update(newResume);
-        assertSame(newResume, storage.get(UUID_3));
+        assertEquals(newResume.getFullName(), storage.get(UUID_3).getFullName());
+        assertGet(newResume);
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -89,23 +95,11 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void getAllTest() {
-        Resume[] resume = storage.getAll();
-        int count = 0;
-        for (int i = 0; i < resume.length; i++) {
-            if (RESUME_1.getUuid().equals(resume[i].getUuid())) {
-                count++;
-                continue;
-            }
-            if (RESUME_2.getUuid().equals(resume[i].getUuid())) {
-                count++;
-                continue;
-            }
-            if (RESUME_3.getUuid().equals(resume[i].getUuid())) {
-                count++;
-            }
-        }
-        assertEquals(3, count);
-        assertEquals(3, resume.length);
+        List<Resume> resumeActual = storage.getAllSorted();
+        List<Resume> expectedList = new ArrayList<>(Arrays.asList(new Resume[]{RESUME_1, RESUME_2, RESUME_3}));
+        expectedList.sort(new NameComparator());
+        assertEquals(expectedList, resumeActual);
+        assertEquals(3, resumeActual.size());
     }
 
     @Test

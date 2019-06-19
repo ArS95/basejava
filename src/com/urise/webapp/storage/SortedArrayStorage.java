@@ -3,8 +3,10 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class SortedArrayStorage extends AbstractArrayStorage {
+    private final Comparator<Resume> RESUME_COMPARATOR = (o1, o2) -> o1.getUuid().compareTo(o2.getUuid());
 
     @Override
     protected void doSaveArray(Resume resume, int index) {
@@ -20,6 +22,6 @@ public class SortedArrayStorage extends AbstractArrayStorage {
 
     @Override
     protected Integer getIndex(String uuid) {
-        return Arrays.binarySearch(storage, 0, size, new Resume(uuid));
+        return Arrays.binarySearch(storage, 0, size, new Resume(uuid), RESUME_COMPARATOR);
     }
 }

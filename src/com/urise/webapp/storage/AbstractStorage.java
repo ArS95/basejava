@@ -8,44 +8,42 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void update(Resume resume) {
-        String uuid = resume.getUuid();
-        Object index = getIndex(uuid);
-        if (isCheckIndex(index)) {
-            doUpdate(resume, index);
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+        Object index = getExistedIndex(resume.getUuid());
+        doUpdate(resume, index);
     }
 
     @Override
     public void save(Resume resume) {
-        String uuid = resume.getUuid();
-        Object index = getIndex(uuid);
-        if (!isCheckIndex(index)) {
-            doSave(resume, index);
-        } else {
-            throw new ExistStorageException(uuid);
-        }
+        Object index = getNotExistedIndex(resume.getUuid());
+        doSave(resume, index);
     }
 
     @Override
     public Resume get(String uuid) {
-        Object index = getIndex(uuid);
-        if (isCheckIndex(index)) {
-            return doGet(index);
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
+        Object index = getExistedIndex(uuid);
+        return doGet(index);
     }
 
     @Override
     public void delete(String uuid) {
+        Object index = getExistedIndex(uuid);
+        doDelete(index);
+    }
+
+    private Object getExistedIndex(String uuid) {
         Object index = getIndex(uuid);
-        if (isCheckIndex(index)) {
-            doDelete(index);
-        } else {
+        if (!isCheckIndex(index)) {
             throw new NotExistStorageException(uuid);
         }
+        return index;
+    }
+
+    private Object getNotExistedIndex(String uuid) {
+        Object index = getIndex(uuid);
+        if (isCheckIndex(index)) {
+            throw new ExistStorageException(uuid);
+        }
+        return index;
     }
 
     protected abstract Object getIndex(String uuid);
