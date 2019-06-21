@@ -6,16 +6,33 @@ import java.util.UUID;
  * Initial resume class
  */
 public class Resume {
-    // Unique identifier
     private final String uuid;
     private String fullName;
 
-    public Resume() {
-        this(UUID.randomUUID().toString());
+    public Resume(String fullName) {
+        this(fullName, UUID.randomUUID().toString());
     }
 
-    public Resume(String uuid) {
+    public Resume(String fullName, String uuid) {
+        this.fullName = fullName;
         this.uuid = uuid;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    @Override
+    public String toString() {
+        return uuid;
     }
 
     @Override
@@ -34,22 +51,5 @@ public class Resume {
         int result = uuid.hashCode();
         result = 31 * result + fullName.hashCode();
         return result;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    @Override
-    public String toString() {
-        return uuid;
     }
 }

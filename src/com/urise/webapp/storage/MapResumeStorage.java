@@ -4,13 +4,12 @@ import com.urise.webapp.model.Resume;
 
 import java.util.*;
 
-
-public class MapUuidStorage extends AbstractStorage {
-    private Map<String, Resume> mapStorage = new HashMap<>();
+public class MapResumeStorage extends AbstractStorage {
+    private Map<Resume, String> mapStorage = new HashMap<>();
 
     @Override
     protected void doSave(Resume resume, Object index) {
-        mapStorage.put((String) index, resume);
+        mapStorage.put(resume, resume.getUuid());
     }
 
     @Override
@@ -20,12 +19,13 @@ public class MapUuidStorage extends AbstractStorage {
 
     @Override
     protected void doUpdate(Resume resume, Object index) {
-        mapStorage.put(resume.getUuid(), resume);
+        mapStorage.remove(index);
+        mapStorage.put(resume, resume.getUuid());
     }
 
     @Override
     protected Resume doGet(Object index) {
-        return mapStorage.get(index);
+        return (Resume) index;
     }
 
     @Override
@@ -39,17 +39,24 @@ public class MapUuidStorage extends AbstractStorage {
     }
 
     @Override
-    protected String getSearchKey(String uuid) {
-        return uuid;
+    protected Resume getSearchKey(String uuid) {
+        if (mapStorage.containsValue(uuid)) {
+            for (Map.Entry<Resume, String> pair : mapStorage.entrySet()) {
+                if (pair.getKey().getUuid().equals(uuid)) {
+                    return pair.getKey();
+                }
+            }
+        }
+        return null;
     }
 
     @Override
     protected boolean checkKey(Object index) {
-        return mapStorage.containsKey(index);
+        return index != null;
     }
 
     @Override
     protected List<Resume> getList() {
-        return new ArrayList<>(mapStorage.values());
+        return new ArrayList<>(mapStorage.keySet());
     }
 }

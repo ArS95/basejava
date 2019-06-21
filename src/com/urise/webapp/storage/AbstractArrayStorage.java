@@ -3,7 +3,6 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,20 +47,18 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     }
 
     @Override
-    public List<Resume> getAllSorted() {
-        List<Resume> sortedList = new ArrayList<>(Arrays.asList(Arrays.copyOf(storage, size)));
-        sortedList.sort(new NameComparator());
-        return sortedList;
-    }
-
-    @Override
     public int size() {
         return size;
     }
 
     @Override
-    protected boolean isCheckIndex(Object index) {
-        return index instanceof Integer && (Integer) index >= 0;
+    protected boolean checkKey(Object index) {
+        return (Integer) index >= 0;
+    }
+
+    @Override
+    protected List<Resume> getList() {
+        return Arrays.asList(Arrays.copyOf(storage, size));
     }
 
     protected abstract void doSaveArray(Resume resume, int index);

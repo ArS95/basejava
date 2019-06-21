@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -17,19 +18,19 @@ public abstract class AbstractStorageTest {
     private static final String UUID_2 = "uuid2";
     private static final String UUID_3 = "uuid3";
     private static final String UUID_4 = "uuid4";
-    private static final Resume RESUME_1 = new Resume(UUID_1);
-    private static final Resume RESUME_2 = new Resume(UUID_2);
-    private static final Resume RESUME_3 = new Resume(UUID_3);
-    private static final Resume RESUME_4 = new Resume(UUID_4);
+    private static final Resume RESUME_1 = new Resume("A", UUID_1);
+    private static final Resume RESUME_2 = new Resume("B", UUID_2);
+    private static final Resume RESUME_3 = new Resume("C", UUID_3);
+    private static final Resume RESUME_4 = new Resume("D", UUID_4);
     protected Storage storage;
+
+    protected AbstractStorageTest(Storage storage) {
+        this.storage = storage;
+    }
 
     @Before
     public void setUp() throws Exception {
         storage.clear();
-        RESUME_1.setFullName("Zarinaa");
-        RESUME_2.setFullName("Zarinaaa");
-        RESUME_3.setFullName("Zarina");
-        RESUME_4.setFullName("Arsen");
         storage.save(RESUME_1);
         storage.save(RESUME_2);
         storage.save(RESUME_3);
@@ -43,10 +44,8 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void updateTest() {
-        Resume newResume = new Resume(UUID_3);
-        newResume.setFullName("Azamat");
+        Resume newResume = new Resume("E", UUID_3);
         storage.update(newResume);
-        assertEquals(newResume.getFullName(), storage.get(UUID_3).getFullName());
         assertGet(newResume);
     }
 
@@ -95,11 +94,11 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void getAllTest() {
-        List<Resume> resumeActual = storage.getAllSorted();
-        List<Resume> expectedList = new ArrayList<>(Arrays.asList(new Resume[]{RESUME_1, RESUME_2, RESUME_3}));
-        expectedList.sort(new NameComparator());
-        assertEquals(expectedList, resumeActual);
-        assertEquals(3, resumeActual.size());
+        List<Resume> actualList = storage.getAllSorted();
+        List<Resume> expectedList = new ArrayList<>(Arrays.asList(RESUME_1, RESUME_2, RESUME_3));
+        expectedList.sort(Comparator.comparing(Resume::getFullName));
+        assertEquals(expectedList, actualList);
+        assertEquals(3, actualList.size());
     }
 
     @Test

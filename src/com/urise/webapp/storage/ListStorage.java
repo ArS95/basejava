@@ -34,18 +34,12 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    public List<Resume> getAllSorted() {
-        listStorage.sort(new NameComparator());
-        return listStorage;
-    }
-
-    @Override
     public int size() {
         return listStorage.size();
     }
 
     @Override
-    protected Integer getIndex(String uuid) {
+    protected Integer getSearchKey(String uuid) {
         for (int i = 0; i < listStorage.size(); i++) {
             if (listStorage.get(i).getUuid().equals(uuid)) {
                 return i;
@@ -55,7 +49,12 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected boolean isCheckIndex(Object index) {
-        return index instanceof Integer && (Integer) index >= 0;
+    protected boolean checkKey(Object index) {
+        return (Integer) index >= 0;
+    }
+
+    @Override
+    protected List<Resume> getList() {
+        return listStorage;
     }
 }
