@@ -11,62 +11,62 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void update(Resume resume) {
-        Object index = getExistedIndex(resume.getUuid());
-        doUpdate(resume, index);
+        Object key = getExistedKey(resume.getUuid());
+        doUpdate(resume, key);
     }
 
     @Override
     public void save(Resume resume) {
-        Object index = getNotExistedIndex(resume.getUuid());
-        doSave(resume, index);
+        Object key = getNotExistedKey(resume.getUuid());
+        doSave(resume, key);
     }
 
     @Override
     public Resume get(String uuid) {
-        Object index = getExistedIndex(uuid);
-        return doGet(index);
+        Object key = getExistedKey(uuid);
+        return doGet(key);
     }
 
     @Override
     public void delete(String uuid) {
-        Object index = getExistedIndex(uuid);
-        doDelete(index);
-    }
-
-    private Object getExistedIndex(String uuid) {
-        Object index = getSearchKey(uuid);
-        if (!checkKey(index)) {
-            throw new NotExistStorageException(uuid);
-        }
-        return index;
-    }
-
-    private Object getNotExistedIndex(String uuid) {
-        Object index = getSearchKey(uuid);
-        if (checkKey(index)) {
-            throw new ExistStorageException(uuid);
-        }
-        return index;
+        Object key = getExistedKey(uuid);
+        doDelete(key);
     }
 
     @Override
     public List<Resume> getAllSorted() {
         List<Resume> sortedList = getList();
-        sortedList.sort(Comparator.comparing(Resume::getFullName));
+        sortedList.sort(Comparator.comparing(Resume::getFullName).thenComparing(Resume::getUuid));
         return sortedList;
+    }
+
+    private Object getExistedKey(String uuid) {
+        Object key = getSearchKey(uuid);
+        if (!checkKey(key)) {
+            throw new NotExistStorageException(uuid);
+        }
+        return key;
+    }
+
+    private Object getNotExistedKey(String uuid) {
+        Object key = getSearchKey(uuid);
+        if (checkKey(key)) {
+            throw new ExistStorageException(uuid);
+        }
+        return key;
     }
 
     protected abstract List<Resume> getList();
 
     protected abstract Object getSearchKey(String uuid);
 
-    protected abstract boolean checkKey(Object index);
+    protected abstract boolean checkKey(Object key);
 
-    protected abstract void doSave(Resume resume, Object index);
+    protected abstract void doSave(Resume resume, Object key);
 
-    protected abstract void doDelete(Object index);
+    protected abstract void doDelete(Object key);
 
-    protected abstract void doUpdate(Resume resume, Object index);
+    protected abstract void doUpdate(Resume resume, Object key);
 
-    protected abstract Resume doGet(Object index);
+    protected abstract Resume doGet(Object key);
 }

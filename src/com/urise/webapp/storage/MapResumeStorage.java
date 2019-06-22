@@ -5,32 +5,32 @@ import com.urise.webapp.model.Resume;
 import java.util.*;
 
 public class MapResumeStorage extends AbstractStorage {
-    private Map<Resume, String> mapStorage = new HashMap<>();
-
-    @Override
-    protected void doSave(Resume resume, Object index) {
-        mapStorage.put(resume, resume.getUuid());
-    }
-
-    @Override
-    protected void doDelete(Object index) {
-        mapStorage.remove(index);
-    }
-
-    @Override
-    protected void doUpdate(Resume resume, Object index) {
-        mapStorage.remove(index);
-        mapStorage.put(resume, resume.getUuid());
-    }
-
-    @Override
-    protected Resume doGet(Object index) {
-        return (Resume) index;
-    }
+    private Map<String, Resume> mapStorage = new HashMap<>();
 
     @Override
     public void clear() {
         mapStorage.clear();
+    }
+
+    @Override
+    protected void doUpdate(Resume resume, Object key) {
+        mapStorage.put(resume.getUuid(), resume);
+    }
+
+    @Override
+    protected void doSave(Resume resume, Object key) {
+        mapStorage.put(resume.getUuid(), resume);
+    }
+
+    @Override
+    protected Resume doGet(Object key) {
+        return (Resume) key;
+    }
+
+    @Override
+    protected void doDelete(Object key) {
+        Resume resume = (Resume) key;
+        mapStorage.remove(resume.getUuid());
     }
 
     @Override
@@ -40,23 +40,16 @@ public class MapResumeStorage extends AbstractStorage {
 
     @Override
     protected Resume getSearchKey(String uuid) {
-        if (mapStorage.containsValue(uuid)) {
-            for (Map.Entry<Resume, String> pair : mapStorage.entrySet()) {
-                if (pair.getKey().getUuid().equals(uuid)) {
-                    return pair.getKey();
-                }
-            }
-        }
-        return null;
+        return mapStorage.get(uuid);
     }
 
     @Override
-    protected boolean checkKey(Object index) {
-        return index != null;
+    protected boolean checkKey(Object key) {
+        return key != null;
     }
 
     @Override
     protected List<Resume> getList() {
-        return new ArrayList<>(mapStorage.keySet());
+        return new ArrayList<>(mapStorage.values());
     }
 }

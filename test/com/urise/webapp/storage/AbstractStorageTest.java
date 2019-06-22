@@ -6,7 +6,6 @@ import com.urise.webapp.model.Resume;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -18,10 +17,10 @@ public abstract class AbstractStorageTest {
     private static final String UUID_2 = "uuid2";
     private static final String UUID_3 = "uuid3";
     private static final String UUID_4 = "uuid4";
-    private static final Resume RESUME_1 = new Resume("A", UUID_1);
-    private static final Resume RESUME_2 = new Resume("B", UUID_2);
-    private static final Resume RESUME_3 = new Resume("C", UUID_3);
-    private static final Resume RESUME_4 = new Resume("D", UUID_4);
+    private static final Resume RESUME_1 = new Resume(UUID_1, "A");
+    private static final Resume RESUME_2 = new Resume(UUID_2, "B");
+    private static final Resume RESUME_3 = new Resume(UUID_3, "C");
+    private static final Resume RESUME_4 = new Resume(UUID_4, "D");
     protected Storage storage;
 
     protected AbstractStorageTest(Storage storage) {
@@ -44,7 +43,7 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void updateTest() {
-        Resume newResume = new Resume("E", UUID_3);
+        Resume newResume = new Resume(UUID_3, "E");
         storage.update(newResume);
         assertGet(newResume);
     }
@@ -95,10 +94,9 @@ public abstract class AbstractStorageTest {
     @Test
     public void getAllTest() {
         List<Resume> actualList = storage.getAllSorted();
-        List<Resume> expectedList = new ArrayList<>(Arrays.asList(RESUME_1, RESUME_2, RESUME_3));
-        expectedList.sort(Comparator.comparing(Resume::getFullName));
+        List<Resume> expectedList = Arrays.asList(RESUME_1, RESUME_2, RESUME_3);
+        expectedList.sort(Comparator.comparing(Resume::getFullName).thenComparing(Resume::getUuid));
         assertEquals(expectedList, actualList);
-        assertEquals(3, actualList.size());
     }
 
     @Test
