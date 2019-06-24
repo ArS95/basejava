@@ -23,6 +23,6 @@ public abstract class AbstractArrayStorageTest extends AbstractStorageTest {
         } catch (StorageException e) {
             fail(e.getMessage());
         }
-        storage.save(new Resume("10_000"));
+        storage.save(new Resume("STORAGE_LIMIT"));
     }
 }

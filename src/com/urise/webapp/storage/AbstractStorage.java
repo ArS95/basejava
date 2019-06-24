@@ -6,67 +6,76 @@ import com.urise.webapp.model.Resume;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
-public abstract class AbstractStorage implements Storage {
+public abstract class AbstractStorage<SK> implements Storage {
+    private static final Logger LOG = Logger.getLogger(AbstractStorage.class.getName());
 
     @Override
     public void update(Resume resume) {
-        Object key = getExistedKey(resume.getUuid());
+        LOG.info("Update " + resume);
+        SK key = getExistedKey(resume.getUuid());
         doUpdate(resume, key);
     }
 
     @Override
     public void save(Resume resume) {
-        Object key = getNotExistedKey(resume.getUuid());
+        LOG.info("Save " + resume);
+        SK key = getNotExistedKey(resume.getUuid());
         doSave(resume, key);
     }
 
     @Override
     public Resume get(String uuid) {
-        Object key = getExistedKey(uuid);
+        LOG.info("Get " + uuid);
+        SK key = getExistedKey(uuid);
         return doGet(key);
     }
 
     @Override
     public void delete(String uuid) {
-        Object key = getExistedKey(uuid);
+        LOG.info("Delete " + uuid);
+        SK key = getExistedKey(uuid);
         doDelete(key);
     }
 
     @Override
     public List<Resume> getAllSorted() {
-        List<Resume> sortedList = getList();
+        LOG.info("GetAllSorted");
+        List<Resume> sortedList = getCopyList();
         sortedList.sort(Comparator.comparing(Resume::getFullName).thenComparing(Resume::getUuid));
         return sortedList;
     }
 
-    private Object getExistedKey(String uuid) {
-        Object key = getSearchKey(uuid);
+    private SK getExistedKey(String uuid) {
+        SK key = getSearchKey(uuid);
         if (!checkKey(key)) {
+            LOG.warning("Resume " + uuid + " not exist");
             throw new NotExistStorageException(uuid);
         }
         return key;
     }
 
-    private Object getNotExistedKey(String uuid) {
-        Object key = getSearchKey(uuid);
+    private SK getNotExistedKey(String uuid) {
+        SK key = getSearchKey(uuid);
         if (checkKey(key)) {
+            LOG.warning("Resume " + uuid + " already exist");
             throw new ExistStorageException(uuid);
         }
         return key;
     }
 
-    protected abstract List<Resume> getList();
+    protected abstract List<Resume> getCopyList();
 
-    protected abstract Object getSearchKey(String uuid);
+    protected abstract SK getSearchKey(String uuid);
 
-    protected abstract boolean checkKey(Object key);
+    protected abstract boolean checkKey(SK key);
 
-    protected abstract void doSave(Resume resume, Object key);
+    protected abstract void doSave(Resume resume, SK key);
 
-    protected abstract void doDelete(Object key);
+    protected abstract void doDelete(SK key);
 
-    protected abstract void doUpdate(Resume resume, Object key);
+    protected abstract void doUpdate(Resume resume, SK key);
 
-    protected abstract Resume doGet(Object key);
+    protected abstract Resume doGet(SK key);
 }
