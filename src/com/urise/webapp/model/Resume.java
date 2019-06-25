@@ -5,8 +5,8 @@ import java.util.*;
 public class Resume {
     private final String uuid;
     private String fullName;
-    private Contacts contacts = new Contacts();
-    private Map<SectionType, Section> sectionMap;
+    private Map<SectionType, AbstractSection> sectionMap;
+    private Map<ContactType, Contacts> enumMap;
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -18,6 +18,7 @@ public class Resume {
         this.uuid = uuid;
         this.fullName = fullName;
         sectionMap = new HashMap<>();
+        enumMap = new HashMap<>();
     }
 
     public String getFullName() {
@@ -32,28 +33,27 @@ public class Resume {
         return uuid;
     }
 
-
-    public Map<ContactEnum, String> getAllContacts() {
-        return contacts.getAllContacts();
+    public Map<ContactType, Contacts> getAllContacts() {
+        return new HashMap<>(enumMap);
     }
 
-    public String getContact(ContactEnum contactEnum) {
-        return contacts.getContact(contactEnum);
+    public Contacts getContact(ContactType contactEnum) {
+        return enumMap.get(contactEnum);
     }
 
-    public void addContact(ContactEnum type, String contact) {
-        contacts.addContact(type, contact);
+    public void addContact(ContactType ContactType, Contacts contact) {
+        enumMap.put(ContactType, contact);
     }
 
-    public Map<SectionType, Section> getAllSections() {
+    public Map<SectionType, AbstractSection> getAllSections() {
         return new HashMap<>(sectionMap);
     }
 
-    public Section getSection(SectionType sectionType) {
+    public AbstractSection getSection(SectionType sectionType) {
         return sectionMap.get(sectionType);
     }
 
-    public void addSection(SectionType sectionType, Section section) {
+    public void addSection(SectionType sectionType, AbstractSection section) {
         sectionMap.put(sectionType, section);
     }
 

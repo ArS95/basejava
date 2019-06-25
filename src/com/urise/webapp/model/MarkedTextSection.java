@@ -5,21 +5,14 @@ import java.util.*;
 /**
  * This is class achievement and qualifications
  */
-public class StringList extends Section<String, List<String>> {
+public class MarkedTextSection extends AbstractSection {
     private List<String> stringList = new ArrayList<>();
 
-    @Override
-    public void addSectionElement(String element, List<String> key) {
+    public void addTextElement(String element) {
         stringList.add(element);
     }
 
-    @Override
-    public String getSection(List<String> key) {
-        return null;
-    }
-
-    @Override
-    public List<String> getAllElement() {
+    public List<String> getAllText() {
         return new ArrayList<>(stringList);
     }
 
@@ -28,7 +21,7 @@ public class StringList extends Section<String, List<String>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StringList that = (StringList) o;
+        MarkedTextSection that = (MarkedTextSection) o;
 
         return stringList.equals(that.stringList);
     }
@@ -40,7 +33,7 @@ public class StringList extends Section<String, List<String>> {
 
     @Override
     public String toString() {
-        return "StringList{" +
+        return "MarkedTextSection{" +
                 "stringList=" + stringList +
                 '}';
     }

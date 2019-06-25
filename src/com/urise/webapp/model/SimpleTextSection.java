@@ -3,22 +3,15 @@ package com.urise.webapp.model;
 /**
  * This is class personal and objective
  */
-public class TextSection extends Section<String, String> {
+public class SimpleTextSection extends AbstractSection {
     private String text;
 
-    @Override
-    public void addSectionElement(String text, String key) {
-        this.text = text;
-    }
-
-    @Override
-    public String getSection(String key) {
+    public String getText() {
         return text;
     }
 
-    @Override
-    public Object getAllElement() {
-        return null;
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
@@ -26,7 +19,7 @@ public class TextSection extends Section<String, String> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TextSection that = (TextSection) o;
+        SimpleTextSection that = (SimpleTextSection) o;
 
         return text.equals(that.text);
     }
@@ -38,7 +31,7 @@ public class TextSection extends Section<String, String> {
 
     @Override
     public String toString() {
-        return "TextSection{" +
+        return "SimpleTextSection{" +
                 "text='" + text + '\'' +
                 '}';
     }

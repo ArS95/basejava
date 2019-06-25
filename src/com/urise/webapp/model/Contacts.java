@@ -1,21 +1,18 @@
 package com.urise.webapp.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Contacts {
-    private Map<ContactEnum, String> contactsMap = new HashMap<>();
+    private String contact;
 
-    protected Map<ContactEnum, String> getAllContacts() {
-        return new HashMap<>(contactsMap);
+    public Contacts(String contact) {
+        this.contact = contact;
     }
 
-    public void addContact(ContactEnum contactEnum, String contact) {
-        contactsMap.put(contactEnum, contact);
+    public String getContact() {
+        return contact;
     }
 
-    public String getContact(ContactEnum contactEnum) {
-        return contactsMap.get(contactEnum);
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 
     @Override
@@ -23,20 +20,20 @@ public class Contacts {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Contacts contacts1 = (Contacts) o;
+        Contacts contacts = (Contacts) o;
 
-        return contactsMap.equals(contacts1.contactsMap);
+        return contact.equals(contacts.contact);
     }
 
     @Override
     public int hashCode() {
-        return contactsMap.hashCode();
+        return contact.hashCode();
     }
 
     @Override
     public String toString() {
         return "Contacts{" +
-                "contactsMap=" + contactsMap +
+                "contact='" + contact + '\'' +
                 '}';
     }
 }
