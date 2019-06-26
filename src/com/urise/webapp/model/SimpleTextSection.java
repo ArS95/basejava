@@ -6,12 +6,12 @@ package com.urise.webapp.model;
 public class SimpleTextSection extends AbstractSection {
     private String text;
 
-    public String getText() {
-        return text;
+    public SimpleTextSection(String text) {
+        this.text = text;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public String getText() {
+        return text;
     }
 
     @Override
@@ -31,8 +31,6 @@ public class SimpleTextSection extends AbstractSection {
 
     @Override
     public String toString() {
-        return "SimpleTextSection{" +
-                "text='" + text + '\'' +
-                '}';
+        return "{'" + text + "'}";
     }
 }

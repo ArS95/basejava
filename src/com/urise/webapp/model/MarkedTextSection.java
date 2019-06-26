@@ -6,7 +6,11 @@ import java.util.*;
  * This is class achievement and qualifications
  */
 public class MarkedTextSection extends AbstractSection {
-    private List<String> stringList = new ArrayList<>();
+    private List<String> stringList;
+
+    public MarkedTextSection(List<String> stringList) {
+        this.stringList = stringList;
+    }
 
     public void addTextElement(String element) {
         stringList.add(element);
@@ -33,8 +37,6 @@ public class MarkedTextSection extends AbstractSection {
 
     @Override
     public String toString() {
-        return "MarkedTextSection{" +
-                "stringList=" + stringList +
-                '}';
+        return stringList.toString();
     }
 }

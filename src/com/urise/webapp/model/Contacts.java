@@ -11,10 +11,6 @@ public class Contacts {
         return contact;
     }
 
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -32,8 +28,6 @@ public class Contacts {
 
     @Override
     public String toString() {
-        return "Contacts{" +
-                "contact='" + contact + '\'' +
-                '}';
+        return "{'" + contact + "'}";
     }
 }

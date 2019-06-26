@@ -5,8 +5,8 @@ import java.util.*;
 public class Resume {
     private final String uuid;
     private String fullName;
-    private Map<SectionType, AbstractSection> sectionMap;
-    private Map<ContactType, Contacts> enumMap;
+    private EnumMap<SectionType, AbstractSection> sectionsMap;
+    private EnumMap<ContactType, Contacts> contactsMap;
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -17,8 +17,8 @@ public class Resume {
         Objects.requireNonNull(fullName, "fullName must not be null");
         this.uuid = uuid;
         this.fullName = fullName;
-        sectionMap = new HashMap<>();
-        enumMap = new HashMap<>();
+        sectionsMap = new EnumMap<>(SectionType.class);
+        contactsMap = new EnumMap<>(ContactType.class);
     }
 
     public String getFullName() {
@@ -34,27 +34,27 @@ public class Resume {
     }
 
     public Map<ContactType, Contacts> getAllContacts() {
-        return new HashMap<>(enumMap);
+        return new EnumMap<>(contactsMap);
     }
 
     public Contacts getContact(ContactType contactEnum) {
-        return enumMap.get(contactEnum);
+        return contactsMap.get(contactEnum);
     }
 
     public void addContact(ContactType ContactType, Contacts contact) {
-        enumMap.put(ContactType, contact);
+        contactsMap.put(ContactType, contact);
     }
 
     public Map<SectionType, AbstractSection> getAllSections() {
-        return new HashMap<>(sectionMap);
+        return new EnumMap<>(sectionsMap);
     }
 
     public AbstractSection getSection(SectionType sectionType) {
-        return sectionMap.get(sectionType);
+        return sectionsMap.get(sectionType);
     }
 
     public void addSection(SectionType sectionType, AbstractSection section) {
-        sectionMap.put(sectionType, section);
+        sectionsMap.put(sectionType, section);
     }
 
     @Override
