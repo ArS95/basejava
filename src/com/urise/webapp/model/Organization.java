@@ -5,14 +5,14 @@ import java.time.LocalDate;
 /**
  * This is class experience and educations
  */
-public class Description extends AbstractSection {
+public class Organization extends AbstractSection {
     private String company;
     private LocalDate beginDate;
     private LocalDate endDate;
     private String position;
     private String text;
 
-    public Description(String company, LocalDate beginDate, LocalDate endDate, String position, String text) {
+    public Organization(String company, LocalDate beginDate, LocalDate endDate, String position, String text) {
         this.company = company;
         this.beginDate = beginDate;
         this.endDate = endDate;
@@ -49,7 +49,7 @@ public class Description extends AbstractSection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Description that = (Description) o;
+        Organization that = (Organization) o;
 
         if (!company.equals(that.company)) return false;
         if (!beginDate.equals(that.beginDate)) return false;
@@ -70,11 +70,11 @@ public class Description extends AbstractSection {
 
     @Override
     public String toString() {
-        String date = beginDate.getMonthValue() + '/' + beginDate.getYear() + " - ";
+        String date = beginDate.getMonthValue() + "/" + beginDate.getYear() + " - ";
         if (endDate == null) {
             date += "Сейчас";
         } else {
-            date += endDate.getMonthValue() + '/' + endDate.getYear();
+            date += endDate.getMonthValue() + "/" + endDate.getYear();
         }
         return '{' +
                 "company='" + company + '\'' +

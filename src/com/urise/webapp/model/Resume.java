@@ -5,8 +5,8 @@ import java.util.*;
 public class Resume {
     private final String uuid;
     private String fullName;
-    private EnumMap<SectionType, AbstractSection> sectionsMap;
-    private EnumMap<ContactType, Contacts> contactsMap;
+    private Map<SectionType, List<AbstractSection>> sections;
+    private Map<ContactType, Contacts> contacts;
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -17,8 +17,8 @@ public class Resume {
         Objects.requireNonNull(fullName, "fullName must not be null");
         this.uuid = uuid;
         this.fullName = fullName;
-        sectionsMap = new EnumMap<>(SectionType.class);
-        contactsMap = new EnumMap<>(ContactType.class);
+        sections = new EnumMap<>(SectionType.class);
+        contacts = new EnumMap<>(ContactType.class);
     }
 
     public String getFullName() {
@@ -34,27 +34,34 @@ public class Resume {
     }
 
     public Map<ContactType, Contacts> getAllContacts() {
-        return new EnumMap<>(contactsMap);
+        return new EnumMap<>(contacts);
     }
 
     public Contacts getContact(ContactType contactEnum) {
-        return contactsMap.get(contactEnum);
+        return contacts.get(contactEnum);
     }
 
     public void addContact(ContactType ContactType, Contacts contact) {
-        contactsMap.put(ContactType, contact);
+        contacts.put(ContactType, contact);
     }
 
-    public Map<SectionType, AbstractSection> getAllSections() {
-        return new EnumMap<>(sectionsMap);
+    public Map<SectionType, List<AbstractSection>> getAllSections() {
+        return new EnumMap<>(sections);
     }
 
-    public AbstractSection getSection(SectionType sectionType) {
-        return sectionsMap.get(sectionType);
+    public List<AbstractSection> getSection(SectionType sectionType) {
+        return sections.get(sectionType);
     }
 
     public void addSection(SectionType sectionType, AbstractSection section) {
-        sectionsMap.put(sectionType, section);
+        List<AbstractSection> list;
+        if (sections.containsKey(sectionType)) {
+            list = sections.get(sectionType);
+            list.add(section);
+            sections.put(sectionType, list);
+        } else {
+            sections.put(sectionType, new ArrayList<>(Collections.singletonList(section)));
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.urise.webapp.model.*;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class ResumeTestData {
@@ -38,16 +39,24 @@ public class ResumeTestData {
                         "\n\t\t\t  DOM, XSLT, MDB, JMX, JDBC, JPA, JNDI, JAAS, SOAP, AJAX, Commet, HTML5, ESB, CMIS, BPMN2, " +
                         "\n\t\t\t  LDAP, OAuth1, OAuth2, JWT.\"",
                         "\n\t\t\t  \"MySQL, SQLite, MS SQL, HSQLDB\""));
+
         resume.addSection(SectionType.ACHIEVEMENT, achievement);
         resume.addSection(SectionType.QUALIFICATIONS, qualifications);
 
         // Experience and Educations
-        Description experience = new Description("JavaOps", LocalDate.of(2015, 5, 1),
+        Organization experience1 = new Organization("JavaOps", LocalDate.of(2015, 5, 1),
                 null, "Middle developer", "\"Google STADIA");
-        Description education = new Description("Google", LocalDate.of(2010, 6, 1),
+        Organization experience2 = new Organization("Wrike", LocalDate.of(2008, 4, 1),
+                LocalDate.of(2006, 5, 01), "Senior developer", "\"Google STADIA");
+        Organization education1 = new Organization("Google", LocalDate.of(2010, 6, 1),
                 LocalDate.of(2015, 12, 1), "student", "\"Functional Programming Principles in Scala\" by Martin Odersky");
-        resume.addSection(SectionType.EXPERIENCE, experience);
-        resume.addSection(SectionType.EDUCATION, education);
+        Organization education2 = new Organization("Yota", LocalDate.of(2010, 6, 1),
+                LocalDate.of(2015, 12, 1), "architect", "\"Functional Programming Principles in Scala\" by Martin Odersky");
+
+        resume.addSection(SectionType.EXPERIENCE, experience1);
+        resume.addSection(SectionType.EXPERIENCE, experience2);
+        resume.addSection(SectionType.EDUCATION, education1);
+        resume.addSection(SectionType.EDUCATION, education2);
 
 
         System.out.println("\n*********************************************************\n");
@@ -58,7 +67,7 @@ public class ResumeTestData {
 
         System.out.println("\n*********************************************************\n");
 
-        for (Map.Entry<SectionType, AbstractSection> sections : resume.getAllSections().entrySet()) {
+        for (Map.Entry<SectionType, List<AbstractSection>> sections : resume.getAllSections().entrySet()) {
             System.out.println(sections);
         }
 
