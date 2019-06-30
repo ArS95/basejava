@@ -49,7 +49,7 @@ public abstract class AbstractStorage<SK> implements Storage {
 
     private SK getExistedKey(String uuid) {
         SK key = getSearchKey(uuid);
-        if (!checkKey(key)) {
+        if (!isExist(key)) {
             LOG.warning("Resume " + uuid + " not exist");
             throw new NotExistStorageException(uuid);
         }
@@ -58,7 +58,7 @@ public abstract class AbstractStorage<SK> implements Storage {
 
     private SK getNotExistedKey(String uuid) {
         SK key = getSearchKey(uuid);
-        if (checkKey(key)) {
+        if (isExist(key)) {
             LOG.warning("Resume " + uuid + " already exist");
             throw new ExistStorageException(uuid);
         }
@@ -69,7 +69,7 @@ public abstract class AbstractStorage<SK> implements Storage {
 
     protected abstract SK getSearchKey(String uuid);
 
-    protected abstract boolean checkKey(SK key);
+    protected abstract boolean isExist(SK key);
 
     protected abstract void doSave(Resume resume, SK key);
 

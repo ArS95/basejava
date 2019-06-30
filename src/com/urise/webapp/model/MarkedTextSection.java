@@ -6,18 +6,19 @@ import java.util.*;
  * This is class achievement and qualifications
  */
 public class MarkedTextSection extends AbstractSection {
-    private List<String> stringList;
+    private final List<String> items;
 
-    public MarkedTextSection(List<String> stringList) {
-        this.stringList = stringList;
+    public MarkedTextSection(List<String> items) {
+        Objects.requireNonNull(items, "items must not be null");
+        this.items = items;
     }
 
     public void addTextElement(String element) {
-        stringList.add(element);
+        items.add(element);
     }
 
     public List<String> getAllText() {
-        return new ArrayList<>(stringList);
+        return new ArrayList<>(items);
     }
 
     @Override
@@ -27,16 +28,16 @@ public class MarkedTextSection extends AbstractSection {
 
         MarkedTextSection that = (MarkedTextSection) o;
 
-        return stringList.equals(that.stringList);
+        return items.equals(that.items);
     }
 
     @Override
     public int hashCode() {
-        return stringList.hashCode();
+        return items.hashCode();
     }
 
     @Override
     public String toString() {
-        return stringList.toString();
+        return items.toString();
     }
 }

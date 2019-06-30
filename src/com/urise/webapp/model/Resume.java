@@ -5,7 +5,7 @@ import java.util.*;
 public class Resume {
     private final String uuid;
     private String fullName;
-    private Map<SectionType, List<AbstractSection>> sections;
+    private Map<SectionType, AbstractSection> sections;
     private Map<ContactType, Contacts> contacts;
 
     public Resume(String fullName) {
@@ -45,22 +45,25 @@ public class Resume {
         contacts.put(ContactType, contact);
     }
 
-    public Map<SectionType, List<AbstractSection>> getAllSections() {
+    public Map<SectionType, AbstractSection> getAllSections() {
         return new EnumMap<>(sections);
     }
 
-    public List<AbstractSection> getSection(SectionType sectionType) {
+    public AbstractSection getSection(SectionType sectionType) {
         return sections.get(sectionType);
     }
 
     public void addSection(SectionType sectionType, AbstractSection section) {
-        List<AbstractSection> list;
-        if (sections.containsKey(sectionType)) {
-            list = sections.get(sectionType);
-            list.add(section);
-            sections.put(sectionType, list);
+        OrganizationSection organization;
+        if (!(section instanceof Organization)) {
+            sections.put(sectionType, section);
+        } else if (sections.containsKey(sectionType)) {
+            organization = (OrganizationSection) sections.get(sectionType);
+            organization.addOrganizationElement((Organization) section);
+            sections.put(sectionType, organization);
         } else {
-            sections.put(sectionType, new ArrayList<>(Collections.singletonList(section)));
+            organization = new OrganizationSection(new ArrayList<>(Collections.singletonList(section)));
+            sections.put(sectionType, organization);
         }
     }
 

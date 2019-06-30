@@ -1,17 +1,20 @@
 package com.urise.webapp.model;
 
+import java.util.Objects;
+
 /**
  * This is class personal and objective
  */
 public class SimpleTextSection extends AbstractSection {
-    private String text;
+    private final String content;
 
-    public SimpleTextSection(String text) {
-        this.text = text;
+    public SimpleTextSection(String content) {
+        Objects.requireNonNull(content, "content must not be null");
+        this.content = content;
     }
 
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
     @Override
@@ -21,16 +24,16 @@ public class SimpleTextSection extends AbstractSection {
 
         SimpleTextSection that = (SimpleTextSection) o;
 
-        return text.equals(that.text);
+        return content.equals(that.content);
     }
 
     @Override
     public int hashCode() {
-        return text.hashCode();
+        return content.hashCode();
     }
 
     @Override
     public String toString() {
-        return "{'" + text + "'}";
+        return "{'" + content + "'}";
     }
 }

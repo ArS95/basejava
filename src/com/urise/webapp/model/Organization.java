@@ -1,48 +1,34 @@
 package com.urise.webapp.model;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * This is class experience and educations
  */
 public class Organization extends AbstractSection {
-    private String company;
-    private LocalDate beginDate;
-    private LocalDate endDate;
-    private String position;
-    private String text;
+    private final Link homePage;
+    private List<Description> descriptions;
 
-    public Organization(String company, LocalDate beginDate, LocalDate endDate, String position, String text) {
-        this.company = company;
-        this.beginDate = beginDate;
-        this.endDate = endDate;
-        this.position = position;
-        this.text = text;
+    public Organization(String name, String url, List<Description> descriptions) {
+        Objects.requireNonNull(name, "name must not be null");
+        homePage = new Link(name, url);
+        this.descriptions = descriptions;
     }
 
-    public String getCompany() {
-        return company;
+    public Link getHomePage() {
+        return homePage;
     }
 
-    public LocalDate getBeginDate() {
-        return beginDate;
+    public List<Description> getDescriptions() {
+        return new ArrayList<>(descriptions);
     }
 
-    public LocalDate getEndDate() {
-        return endDate;
+    public void addDescription(Description description) {
+        descriptions.add(description);
     }
 
-    public String getPosition() {
-        return position;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -51,36 +37,22 @@ public class Organization extends AbstractSection {
 
         Organization that = (Organization) o;
 
-        if (!company.equals(that.company)) return false;
-        if (!beginDate.equals(that.beginDate)) return false;
-        if (!endDate.equals(that.endDate)) return false;
-        if (!position.equals(that.position)) return false;
-        return text.equals(that.text);
+        if (!Objects.equals(homePage, that.homePage)) return false;
+        return Objects.equals(descriptions, that.descriptions);
     }
 
     @Override
     public int hashCode() {
-        int result = company.hashCode();
-        result = 31 * result + beginDate.hashCode();
-        result = 31 * result + endDate.hashCode();
-        result = 31 * result + position.hashCode();
-        result = 31 * result + text.hashCode();
+        int result = homePage != null ? homePage.hashCode() : 0;
+        result = 31 * result + (descriptions != null ? descriptions.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        String date = beginDate.getMonthValue() + "/" + beginDate.getYear() + " - ";
-        if (endDate == null) {
-            date += "Сейчас";
-        } else {
-            date += endDate.getMonthValue() + "/" + endDate.getYear();
-        }
-        return '{' +
-                "company='" + company + '\'' +
-                ", date=" + date +
-                ", position='" + position + '\'' +
-                ", text='" + text + '\'' +
+        return "Organization{" +
+                "homePage=" + homePage +
+                ", descriptions=" + descriptions +
                 '}';
     }
 }
