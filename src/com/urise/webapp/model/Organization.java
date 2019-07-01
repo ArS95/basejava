@@ -7,11 +7,11 @@ import java.util.Objects;
 /**
  * This is class experience and educations
  */
-public class Organization extends AbstractSection {
+public class Organization {
     private final Link homePage;
-    private List<Description> descriptions;
+    private List<Position> descriptions;
 
-    public Organization(String name, String url, List<Description> descriptions) {
+    public Organization(String name, String url, List<Position> descriptions) {
         Objects.requireNonNull(name, "name must not be null");
         homePage = new Link(name, url);
         this.descriptions = descriptions;
@@ -21,14 +21,9 @@ public class Organization extends AbstractSection {
         return homePage;
     }
 
-    public List<Description> getDescriptions() {
+    public List<Position> getDescriptions() {
         return new ArrayList<>(descriptions);
     }
-
-    public void addDescription(Description description) {
-        descriptions.add(description);
-    }
-
 
     @Override
     public boolean equals(Object o) {

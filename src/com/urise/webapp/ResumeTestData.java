@@ -43,37 +43,37 @@ public class ResumeTestData {
         resume.addSection(SectionType.QUALIFICATIONS, qualifications);
 
         // Experience and Educations
-        Description Google1 = new Description(LocalDate.of(2015, 5, 1), LocalDate.of(2045, 1, 1),
+        Position Google1 = new Position(LocalDate.of(2015, 5, 1), LocalDate.of(2045, 1, 1),
                 "Middle developer", "Google STADIA");
-        Description Google2 = new Description(LocalDate.of(2045, 4, 1), LocalDate.of(2065, 2, 1),
+        Position Google2 = new Position(LocalDate.of(2045, 4, 1), LocalDate.of(2065, 2, 1),
                 "Designer developer", "Google Chrome");
         Organization experience1 = new Organization("GOOGLE", "abv", Arrays.asList(Google1, Google2));
 
 
-        Description Yandex1 = new Description(LocalDate.of(2050, 1, 1), LocalDate.of(2075, 3, 1),
+        Position Yandex1 = new Position(LocalDate.of(2050, 1, 1), LocalDate.of(2075, 3, 1),
                 "Master developer", "Yandex STADIA");
-        Description Yandex2 = new Description(LocalDate.of(2105, 2, 1), LocalDate.of(2035, 4, 1),
+        Position Yandex2 = new Position(LocalDate.of(2105, 2, 1), LocalDate.of(2035, 4, 1),
                 "President", "Yandex Chrome");
         Organization experience2 = new Organization("YANDEX", "qwe", Arrays.asList(Yandex1, Yandex2));
 
+        OrganizationSection experienceSection = new OrganizationSection(Arrays.asList(experience1, experience2));
+        resume.addSection(SectionType.EXPERIENCE, experienceSection);
 
-        Description MGU1 = new Description(LocalDate.of(2090, 8, 1), LocalDate.of(2575, 5, 1),
+        Position MGU1 = new Position(LocalDate.of(2090, 8, 1), LocalDate.of(2575, 5, 1),
                 " student", "MGU STADIA");
-        Description MGU2 = new Description(LocalDate.of(2195, 7, 1), LocalDate.of(2535, 6, 1),
+        Position MGU2 = new Position(LocalDate.of(2195, 7, 1), LocalDate.of(2535, 6, 1),
                 "MGU developer", "MGU Chrome");
         Organization education1 = new Organization("www", "abv", Arrays.asList(MGU1, MGU2));
 
 
-        Description KSTU1 = new Description(LocalDate.of(2590, 9, 1), LocalDate.of(2875, 7, 1),
+        Position KSTU1 = new Position(LocalDate.of(2590, 9, 1), LocalDate.of(2875, 7, 1),
                 "  KSTU student", "KSTU STADIA");
-        Description KSTU2 = new Description(LocalDate.of(2995, 11, 1), LocalDate.of(2435, 8, 1),
+        Position KSTU2 = new Position(LocalDate.of(2995, 11, 1), LocalDate.of(2435, 8, 1),
                 "KSTU developer", "KSTU Chrome");
         Organization education2 = new Organization("www", "abv", Arrays.asList(KSTU1, KSTU2));
 
-        resume.addSection(SectionType.EXPERIENCE, experience1);
-        resume.addSection(SectionType.EXPERIENCE, experience2);
-        resume.addSection(SectionType.EDUCATION, education1);
-        resume.addSection(SectionType.EDUCATION, education2);
+        OrganizationSection educationScetion = new OrganizationSection(Arrays.asList(education1, education2));
+        resume.addSection(SectionType.EDUCATION, educationScetion);
 
 
         System.out.println("\n*********************************************************\n");

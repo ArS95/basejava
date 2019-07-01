@@ -26,16 +26,16 @@ public class MainFile {
 //            e.printStackTrace();
 //        }
 
-        getFail(new File("C:\\Программирование\\basejava"));
+        getEpicFail(new File("C:\\Программирование\\basejava"));
     }
 
-    public static void getFail(File file) throws IOException {
+    public static void getEpicFail(File file) throws IOException {
         File[] files;
         if (file.isDirectory()) {
             files = file.listFiles();
             for (File isFile : files) {
                 if (isFile.isDirectory()) {
-                    getFail(isFile);
+                    getEpicFail(isFile);
                 } else {
                     System.out.println(isFile.getName());
                 }
@@ -47,7 +47,7 @@ public class MainFile {
 //        File[] files = file.listFiles();
 //        for (File isFile : files) {
 //            if (isFile.isDirectory()) {
-//                getFail(isFile);
+//                getEpicFail(isFile);
 //            } else {
 //                System.out.println(isFile.getName());
 //            }

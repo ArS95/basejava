@@ -11,7 +11,6 @@ import java.util.Objects;
 
 public abstract class AbstractFileStorage extends AbstractStorage<File> {
     private File directory;
-    protected int size;
 
     protected AbstractFileStorage(File directory) {
         Objects.requireNonNull(directory, "directory must not be null");
@@ -27,7 +26,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected List<Resume> getCopyList() {
         List<Resume> copyList = new ArrayList<>();
-        for (File file : directory.listFiles()) {
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
             Resume resume = doRead(file);
             copyList.add(resume);
         }
@@ -49,7 +48,6 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         try {
             file.createNewFile();
             doWrite(resume, file);
-            size++;
         } catch (IOException e) {
             throw new StorageException("IO error", file.getName(), e);
         }
@@ -57,10 +55,9 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
 
     @Override
     protected void doDelete(File file) {
-        for (File deleteFail : directory.listFiles()) {
+        for (File deleteFail : Objects.requireNonNull(directory.listFiles())) {
             if (deleteFail.equals(file)) {
                 deleteFail.delete();
-                size--;
                 break;
             }
         }
@@ -82,14 +79,14 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
 
     @Override
     public void clear() {
-        for (File deleteFail : directory.listFiles()) {
+        for (File deleteFail : Objects.requireNonNull(directory.listFiles())) {
             deleteFail.delete();
         }
     }
 
     @Override
     public int size() {
-        return size;
+        return Objects.requireNonNull(directory.listFiles()).length;
     }
 
     protected abstract void doWrite(Resume resume, File file) throws IOException;

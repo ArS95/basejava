@@ -54,17 +54,7 @@ public class Resume {
     }
 
     public void addSection(SectionType sectionType, AbstractSection section) {
-        OrganizationSection organization;
-        if (!(section instanceof Organization)) {
-            sections.put(sectionType, section);
-        } else if (sections.containsKey(sectionType)) {
-            organization = (OrganizationSection) sections.get(sectionType);
-            organization.addOrganizationElement((Organization) section);
-            sections.put(sectionType, organization);
-        } else {
-            organization = new OrganizationSection(new ArrayList<>(Collections.singletonList(section)));
-            sections.put(sectionType, organization);
-        }
+        sections.put(sectionType, section);
     }
 
     @Override
