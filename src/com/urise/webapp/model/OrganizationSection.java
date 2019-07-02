@@ -15,7 +15,7 @@ public class OrganizationSection extends AbstractSection {
         return organizations;
     }
 
-    public void addOrganizationElement(Organization organization) {
+    public void addOrganization(Organization organization) {
         organizations.add(organization);
     }
 

@@ -9,20 +9,20 @@ import java.util.Objects;
  */
 public class Organization {
     private final Link homePage;
-    private List<Position> descriptions;
+    private List<Position> positions;
 
     public Organization(String name, String url, List<Position> descriptions) {
         Objects.requireNonNull(name, "name must not be null");
         homePage = new Link(name, url);
-        this.descriptions = descriptions;
+        this.positions = descriptions;
     }
 
     public Link getHomePage() {
         return homePage;
     }
 
-    public List<Position> getDescriptions() {
-        return new ArrayList<>(descriptions);
+    public List<Position> getPositions() {
+        return new ArrayList<>(positions);
     }
 
     @Override
@@ -33,13 +33,13 @@ public class Organization {
         Organization that = (Organization) o;
 
         if (!Objects.equals(homePage, that.homePage)) return false;
-        return Objects.equals(descriptions, that.descriptions);
+        return Objects.equals(positions, that.positions);
     }
 
     @Override
     public int hashCode() {
         int result = homePage != null ? homePage.hashCode() : 0;
-        result = 31 * result + (descriptions != null ? descriptions.hashCode() : 0);
+        result = 31 * result + (positions != null ? positions.hashCode() : 0);
         return result;
     }
 
@@ -47,7 +47,7 @@ public class Organization {
     public String toString() {
         return "Organization{" +
                 "homePage=" + homePage +
-                ", descriptions=" + descriptions +
+                ", positions=" + positions +
                 '}';
     }
 }
