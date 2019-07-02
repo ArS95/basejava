@@ -26,31 +26,25 @@ public class MainFile {
 //            e.printStackTrace();
 //        }
 
-        getFail(new File("C:\\Программирование\\basejava"));
+        getFails(new File("C:\\Программирование\\basejava"), "");
     }
 
-    public static void getFail(File file) throws IOException {
-        File[] files;
-        if (file.isDirectory()) {
-            files = file.listFiles();
-            for (File isFile : files) {
-                if (isFile.isDirectory()) {
-                    getFail(isFile);
-                } else {
-                    System.out.println(isFile.getName());
+    public static void getFails(File directory, String tab) throws IOException {
+        int size = tab.length();
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    System.out.println(tab + "File: " + file.getName());
+                } else if (file.isDirectory()) {
+                    System.out.println(tab + "Directory: " + file.getName());
+                    tab += "\t";
+                    getFails(file, tab);
+                }
+                if (tab.length() != size) {
+                    tab = tab.substring(0, tab.length() - 1);
                 }
             }
-        } else {
-            System.out.println(file.getName());
         }
-
-//        File[] files = file.listFiles();
-//        for (File isFile : files) {
-//            if (isFile.isDirectory()) {
-//                getFail(isFile);
-//            } else {
-//                System.out.println(isFile.getName());
-//            }
-//        }
     }
 }

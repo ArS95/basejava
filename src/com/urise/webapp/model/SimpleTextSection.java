@@ -6,6 +6,7 @@ import java.util.Objects;
  * This is class personal and objective
  */
 public class SimpleTextSection extends AbstractSection {
+    private static final long serialVersionUID = 1L;
     private final String content;
 
     public SimpleTextSection(String content) {

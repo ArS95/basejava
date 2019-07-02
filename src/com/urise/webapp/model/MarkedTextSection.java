@@ -1,12 +1,20 @@
 package com.urise.webapp.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * This is class achievement and qualifications
  */
 public class MarkedTextSection extends AbstractSection {
+    private static final long serialVersionUID = 1L;
     private final List<String> items;
+
+    public MarkedTextSection(String... items) {
+        this(Arrays.asList(items));
+    }
 
     public MarkedTextSection(List<String> items) {
         Objects.requireNonNull(items, "items must not be null");

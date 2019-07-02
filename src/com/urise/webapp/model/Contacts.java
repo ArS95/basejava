@@ -1,6 +1,9 @@
 package com.urise.webapp.model;
 
-public class Contacts {
+import java.io.Serializable;
+
+public class Contacts  implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String contact;
 
     public Contacts(String contact) {

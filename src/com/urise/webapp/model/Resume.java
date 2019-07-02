@@ -1,12 +1,14 @@
 package com.urise.webapp.model;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Resume {
+public class Resume implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final String uuid;
     private String fullName;
-    private Map<SectionType, AbstractSection> sections;
-    private Map<ContactType, Contacts> contacts;
+    private Map<SectionType, AbstractSection> sections = new EnumMap<>(SectionType.class);
+    private Map<ContactType, Contacts> contacts = new EnumMap<>(ContactType.class);
 
     public Resume(String fullName) {
         this(UUID.randomUUID().toString(), fullName);
@@ -17,8 +19,6 @@ public class Resume {
         Objects.requireNonNull(fullName, "fullName must not be null");
         this.uuid = uuid;
         this.fullName = fullName;
-        sections = new EnumMap<>(SectionType.class);
-        contacts = new EnumMap<>(ContactType.class);
     }
 
     public String getFullName() {
@@ -37,8 +37,8 @@ public class Resume {
         return new EnumMap<>(contacts);
     }
 
-    public Contacts getContact(ContactType contactEnum) {
-        return contacts.get(contactEnum);
+    public Contacts getContact(ContactType type) {
+        return contacts.get(type);
     }
 
     public void addContact(ContactType ContactType, Contacts contact) {
