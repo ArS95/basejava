@@ -7,17 +7,17 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class ResumeTestData {
-    public static void main(String[] args) {
+    public static void main(java.lang.String[] args) {
         Resume resume = new Resume("Arsen");
 
         // Add contacts
-        resume.addContact(ContactType.PHONE_NUMBER, new Contacts("87472662282"));
-        resume.addContact(ContactType.SKYPE, new Contacts("live:temirtasov95"));
-        resume.addContact(ContactType.EMAIL, new Contacts("temirtasov@gmai.com"));
-        resume.addContact(ContactType.LINKED_IN, new Contacts("https://www.linkedin.com/in/"));
-        resume.addContact(ContactType.GIT_HUB, new Contacts("https://github.com/ArS95/basejava"));
+        resume.addContact(ContactType.PHONE_NUMBER, "87472662282");
+        resume.addContact(ContactType.SKYPE, "live:temirtasov95");
+        resume.addContact(ContactType.EMAIL, "temirtasov@gmai.com");
+        resume.addContact(ContactType.LINKED_IN, "https://www.linkedin.com/in/");
+        resume.addContact(ContactType.GIT_HUB, "https://github.com/ArS95/basejava");
         resume.addContact(ContactType.STACK_OVERFLOW, null);
-        resume.addContact(ContactType.HOME_PAGE, new Contacts("https:/google.com/HOME_PAGE/kz"));
+        resume.addContact(ContactType.HOME_PAGE, "https:/google.com/HOME_PAGE/kz");
 
         //Personal and Objective
         SimpleTextSection personal = new SimpleTextSection("Пурист кода и архитектуры.");
@@ -78,7 +78,7 @@ public class ResumeTestData {
 
         System.out.println("\n*********************************************************\n");
 
-        for (Map.Entry<ContactType, Contacts> contact : resume.getAllContacts().entrySet()) {
+        for (Map.Entry<ContactType, String> contact : resume.getAllContacts().entrySet()) {
             System.out.println(contact);
         }
 

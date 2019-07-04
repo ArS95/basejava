@@ -26,11 +26,10 @@ public class MainFile {
 //            e.printStackTrace();
 //        }
 
-        getFails(new File("C:\\Программирование\\basejava"), "");
+        showFiles(new File("D:\\Темиртасов\\Программирование!!!!\\basejava-master"), "");
     }
 
-    public static void getFails(File directory, String tab) throws IOException {
-        int size = tab.length();
+    public static void showFiles(File directory, String tab) throws IOException {
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -38,11 +37,7 @@ public class MainFile {
                     System.out.println(tab + "File: " + file.getName());
                 } else if (file.isDirectory()) {
                     System.out.println(tab + "Directory: " + file.getName());
-                    tab += "\t";
-                    getFails(file, tab);
-                }
-                if (tab.length() != size) {
-                    tab = tab.substring(0, tab.length() - 1);
+                    showFiles(file, tab + "\t");
                 }
             }
         }

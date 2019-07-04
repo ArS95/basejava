@@ -5,43 +5,43 @@ import java.util.*;
 
 public class Resume implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final String uuid;
-    private String fullName;
+    private final java.lang.String uuid;
+    private java.lang.String fullName;
     private Map<SectionType, AbstractSection> sections = new EnumMap<>(SectionType.class);
-    private Map<ContactType, Contacts> contacts = new EnumMap<>(ContactType.class);
+    private Map<ContactType, String> contacts = new EnumMap<>(ContactType.class);
 
-    public Resume(String fullName) {
+    public Resume(java.lang.String fullName) {
         this(UUID.randomUUID().toString(), fullName);
     }
 
-    public Resume(String uuid, String fullName) {
+    public Resume(java.lang.String uuid, java.lang.String fullName) {
         Objects.requireNonNull(uuid, "uuid must not be null");
         Objects.requireNonNull(fullName, "fullName must not be null");
         this.uuid = uuid;
         this.fullName = fullName;
     }
 
-    public String getFullName() {
+    public java.lang.String getFullName() {
         return fullName;
     }
 
-    public void setFullName(String fullName) {
+    public void setFullName(java.lang.String fullName) {
         this.fullName = fullName;
     }
 
-    public String getUuid() {
+    public java.lang.String getUuid() {
         return uuid;
     }
 
-    public Map<ContactType, Contacts> getAllContacts() {
+    public Map<ContactType, String> getAllContacts() {
         return new EnumMap<>(contacts);
     }
 
-    public Contacts getContact(ContactType type) {
+    public String getContact(ContactType type) {
         return contacts.get(type);
     }
 
-    public void addContact(ContactType ContactType, Contacts contact) {
+    public void addContact(ContactType ContactType, String contact) {
         contacts.put(ContactType, contact);
     }
 
@@ -76,7 +76,7 @@ public class Resume implements Serializable {
     }
 
     @Override
-    public String toString() {
+    public java.lang.String toString() {
         return "Resume{" +
                 "uuid='" + uuid + '\'' +
                 ", fullName='" + fullName + '\'' +

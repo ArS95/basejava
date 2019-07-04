@@ -5,7 +5,7 @@ import com.urise.webapp.model.Resume;
 
 import java.io.*;
 
-public class StreamJavaSerializable implements Strategy {
+public class StreamSerializableStrategy implements IOStrategy {
 
     @Override
     public Resume doRead(InputStream is) throws IOException {
