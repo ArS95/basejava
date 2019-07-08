@@ -103,7 +103,7 @@ public abstract class AbstractStorageTest {
     }
 
     @Test
-    public void getAllTest() {
+    public void getAllSortedTest() {
         List<Resume> actualList = storage.getAllSorted();
         List<Resume> expectedList = Arrays.asList(RESUME_1, RESUME_2, RESUME_3);
         expectedList.sort(Comparator.comparing(Resume::getFullName).thenComparing(Resume::getUuid));
