@@ -5,8 +5,8 @@ import java.util.*;
 
 public class Resume implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final java.lang.String uuid;
-    private java.lang.String fullName;
+    private final String uuid;
+    private String fullName;
     private Map<SectionType, AbstractSection> sections = new EnumMap<>(SectionType.class);
     private Map<ContactType, String> contacts = new EnumMap<>(ContactType.class);
 
@@ -14,22 +14,22 @@ public class Resume implements Serializable {
         this(UUID.randomUUID().toString(), fullName);
     }
 
-    public Resume(java.lang.String uuid, java.lang.String fullName) {
+    public Resume(String uuid,String fullName) {
         Objects.requireNonNull(uuid, "uuid must not be null");
         Objects.requireNonNull(fullName, "fullName must not be null");
         this.uuid = uuid;
         this.fullName = fullName;
     }
 
-    public java.lang.String getFullName() {
+    public String getFullName() {
         return fullName;
     }
 
-    public void setFullName(java.lang.String fullName) {
+    public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
-    public java.lang.String getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
@@ -76,7 +76,7 @@ public class Resume implements Serializable {
     }
 
     @Override
-    public java.lang.String toString() {
+    public String toString() {
         return "Resume{" +
                 "uuid='" + uuid + '\'' +
                 ", fullName='" + fullName + '\'' +
