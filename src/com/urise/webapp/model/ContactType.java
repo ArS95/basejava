@@ -6,7 +6,7 @@ public enum ContactType {
     EMAIL("Электронная почта"),
     LINKED_IN("Linked_In"),
     GIT_HUB("Git_Hub"),
-    STACK_OVERFLOW("Stackoverflow"),
+    STACK_OVERFLOW("StackOverflow"),
     HOME_PAGE("Домашняя страница");
 
     private String title;
@@ -16,11 +16,6 @@ public enum ContactType {
     }
 
     public String getTitle() {
-        return title;
-    }
-
-    @Override
-    public String toString() {
         return title;
     }
 }

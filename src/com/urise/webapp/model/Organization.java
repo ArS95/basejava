@@ -23,7 +23,7 @@ import static com.urise.webapp.util.DateUtil.of;
 public class Organization implements Serializable {
     private static final long serialVersionUID = 1L;
     private Link homePage;
-    private List<Position> positions;
+    private List<Position> positions = new ArrayList<>();
 
     public Organization() {
     }
@@ -52,15 +52,13 @@ public class Organization implements Serializable {
 
         Organization that = (Organization) o;
 
-        if (!Objects.equals(homePage, that.homePage)) return false;
-        return Objects.equals(positions, that.positions);
+        return Objects.equals(homePage, that.homePage) &&
+                Objects.equals(positions, that.positions);
     }
 
     @Override
     public int hashCode() {
-        int result = homePage != null ? homePage.hashCode() : 0;
-        result = 31 * result + (positions != null ? positions.hashCode() : 0);
-        return result;
+        return Objects.hash(homePage, positions);
     }
 
     @Override
@@ -122,22 +120,17 @@ public class Organization implements Serializable {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
-            Position that = (Position) o;
-
-            if (!startDate.equals(that.startDate)) return false;
-            if (!endDate.equals(that.endDate)) return false;
-            if (!Objects.equals(description, that.description)) return false;
-            return title.equals(that.title);
+            Position position = (Position) o;
+            return Objects.equals(startDate, position.startDate) &&
+                    Objects.equals(endDate, position.endDate) &&
+                    Objects.equals(title, position.title) &&
+                    Objects.equals(description, position.description);
         }
+
 
         @Override
         public int hashCode() {
-            int result = startDate.hashCode();
-            result = 31 * result + endDate.hashCode();
-            result = 31 * result + (description != null ? description.hashCode() : 0);
-            result = 31 * result + title.hashCode();
-            return result;
+            return Objects.hash(startDate, endDate, title, description);
         }
 
         @Override
