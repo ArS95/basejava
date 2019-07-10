@@ -14,34 +14,41 @@ public class DataStreamSerializer implements IOStrategy {
         try (DataInputStream dis = new DataInputStream(is)) {
             String uuid = dis.readUTF();
             String fullName = dis.readUTF();
-            int size = dis.readInt();
+
+            int size1 = dis.readInt();
             Resume resume = new Resume(uuid, fullName);
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < size1; i++) {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
             }
-            for (int i = 0; i < dis.readInt(); i++) {
+
+            int size2 = dis.readInt();
+            for (int i = 0; i < size2; i++) {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 if (sectionType.equals(SectionType.PERSONAL) || sectionType.equals(SectionType.OBJECTIVE)) {
                     resume.addSection(sectionType, new SimpleTextSection(dis.readUTF()));
                     continue;
                 }
                 if (sectionType.equals(SectionType.EXPERIENCE) || sectionType.equals(SectionType.EDUCATION)) {
-                    int sizeOrg = dis.readInt();
+                    int size3 = dis.readInt();
                     List<Organization> organizations = new ArrayList<>();
-                    for (int k = 0; k < sizeOrg; k++) { 
+                    for (int k = 0; k < size3; k++) {
                         Link link = new Link(dis.readUTF(), dis.readUTF());
 
-                        int sizePos = dis.readInt();
+                        int size4 = dis.readInt();
                         List<Organization.Position> positions = new ArrayList<>();
-                        for (int j = 0; j < sizePos; j++) {
+                        for (int j = 0; j < size4; j++) {
                             positions.add(new Organization.Position(LocalDate.parse(dis.readUTF()), LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()));
                         }
                         organizations.add(new Organization(link, positions));
                     }
                     resume.addSection(sectionType, new OrganizationSection(organizations));
-                } else {
+                    continue;
+                }
+                if (sectionType.equals(SectionType.ACHIEVEMENT) || sectionType.equals(SectionType.QUALIFICATIONS)) {
                     MarkedTextSection markedTextSection = new MarkedTextSection();
-                    for (int j = 0; j < dis.readInt(); j++) {
+
+                    int size5 = dis.readInt();
+                    for (int j = 0; j < size5; j++) {
                         markedTextSection.addTextElement(dis.readUTF());
                     }
                     resume.addSection(sectionType, markedTextSection);
@@ -56,6 +63,7 @@ public class DataStreamSerializer implements IOStrategy {
         try (DataOutputStream dos = new DataOutputStream(os)) {
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
+
             Map<ContactType, String> allContacts = resume.getAllContacts();
             dos.writeInt(allContacts.size());
             for (Map.Entry<ContactType, String> entry : allContacts.entrySet()) {
@@ -66,8 +74,8 @@ public class DataStreamSerializer implements IOStrategy {
             Map<SectionType, AbstractSection> allSections = resume.getAllSections();
             dos.writeInt(allSections.size());
             for (Map.Entry<SectionType, AbstractSection> entry : allSections.entrySet()) {
+                dos.writeUTF(entry.getKey().name());
                 if (entry.getKey().equals(SectionType.PERSONAL) || entry.getKey().equals(SectionType.OBJECTIVE)) {
-                    dos.writeUTF(entry.getKey().name());
                     dos.writeUTF(entry.getValue().toString());
                     continue;
                 }
@@ -75,16 +83,14 @@ public class DataStreamSerializer implements IOStrategy {
                     OrganizationSection organizationSection = (OrganizationSection) entry.getValue();
                     List<Organization> organizations = organizationSection.getOrganizations();
 
-                    int sizeOrg = organizations.size();
-                    dos.writeInt(sizeOrg);
+                    dos.writeInt(organizations.size());
                     for (Organization organization : organizations) {
                         Link link = organization.getHomePage();
                         dos.writeUTF(link.getName());
                         dos.writeUTF(link.getUrl());
 
                         List<Organization.Position> positions = organization.getPositions();
-                        int sizePos = positions.size();
-                        dos.writeInt(sizePos);
+                        dos.writeInt(positions.size());
                         for (Organization.Position position : positions) {
                             dos.writeUTF(position.getStartDate().toString());
                             dos.writeUTF(position.getEndDate().toString());
@@ -92,9 +98,12 @@ public class DataStreamSerializer implements IOStrategy {
                             dos.writeUTF(position.getDescription());
                         }
                     }
-                } else {
+                    continue;
+                }
+                if (entry.getKey().equals(SectionType.ACHIEVEMENT) || entry.getKey().equals(SectionType.QUALIFICATIONS)) {
                     MarkedTextSection markedTextSection = (MarkedTextSection) entry.getValue();
                     List<String> strings = markedTextSection.getAllText();
+
                     dos.writeInt(strings.size());
                     for (String text : strings) {
                         dos.writeUTF(text);
@@ -103,20 +112,4 @@ public class DataStreamSerializer implements IOStrategy {
             }
         }
     }
-
-//    private AbstractSection getReadSection(DataInputStream dis) throws IOException {
-//        int sizeOrg = dis.readInt();
-//        List<Organization> organizations = new ArrayList<>();
-//        for (int i = 0; i < sizeOrg; i++) {
-//            Link link = new Link(dis.readUTF(), dis.readUTF());
-//
-//            int sizePos = dis.readInt();
-//            List<Organization.Position> positions = new ArrayList<>();
-//            for (int j = 0; j < sizePos; j++) {
-//                positions.add(new Organization.Position(LocalDate.parse(dis.readUTF()), LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()));
-//            }
-//            organizations.add(new Organization(link, positions));
-//        }
-//        return  new OrganizationSection(organizations);
-//    }
 }

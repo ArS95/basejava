@@ -1,8 +1,15 @@
 package com.urise.webapp.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+/**
+ * This is class experience and educations
+ */
 
 public class OrganizationSection extends AbstractSection {
     private static final long serialVersionUID = 1L;
@@ -21,7 +28,7 @@ public class OrganizationSection extends AbstractSection {
     }
 
     public List<Organization> getOrganizations() {
-        return organizations;
+        return new ArrayList<>(organizations);
     }
 
     public void addOrganization(Organization organization) {

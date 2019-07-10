@@ -132,7 +132,7 @@ public abstract class AbstractStorageTest {
         List<Resume> actualList = storage.getAllSorted();
         List<Resume> expectedList = Arrays.asList(RESUME_1, RESUME_2, RESUME_3);
         expectedList.sort(Comparator.comparing(Resume::getFullName).thenComparing(Resume::getUuid));
-        assertEquals(actualList, expectedList);
+        assertEquals(expectedList, actualList);
     }
 
     @Test
