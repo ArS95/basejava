@@ -45,8 +45,8 @@ public abstract class AbstractStorageTest {
                                 new Organization.Position(2001, Month.MARCH, 2005, Month.JANUARY, "position2", "content2"))));
         RESUME_1.addSection(SectionType.EDUCATION,
                 new OrganizationSection(
-                        new Organization("Institute", "abf",
-                                new Organization.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", "grt"),
+                        new Organization("Institute", null,
+                                new Organization.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
                                 new Organization.Position(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet")),
                         new Organization("Organization12", "http://Organization12.ru")));
         RESUME_2.addContact(ContactType.SKYPE, "skype2");
