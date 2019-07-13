@@ -1,4 +1,4 @@
-package com.urise.webapp.storage;
+package com.urise.webapp.util;
 
 public class MainUtil {
     public static void main(String[] args) {

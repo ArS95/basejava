@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DataStreamSerializer implements IOStrategy {
+public class DataStreamSerializer<T> implements IOStrategy {
     @Override
     public Resume doRead(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
@@ -31,12 +31,12 @@ public class DataStreamSerializer implements IOStrategy {
                         int organizationsSize = dis.readInt();
                         List<Organization> organizations = new ArrayList<>();
                         for (int k = 0; k < organizationsSize; k++) {
-                            Link link = new Link(dis.readUTF(), dis.readInt() == 0 ? dis.readUTF() : null);
+                            Link link = new Link(dis.readUTF(), dis.readUTF());
                             int positionsSize = dis.readInt();
                             List<Organization.Position> positions = new ArrayList<>();
                             for (int j = 0; j < positionsSize; j++) {
                                 positions.add(new Organization.Position(LocalDate.parse(dis.readUTF()),
-                                        LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readInt() == 0 ? dis.readUTF() : null));
+                                        LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()));
                             }
                             organizations.add(new Organization(link, positions));
                         }
@@ -63,6 +63,7 @@ public class DataStreamSerializer implements IOStrategy {
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
 
+
             Map<ContactType, String> allContacts = resume.getAllContacts();
             dos.writeInt(allContacts.size());
             for (Map.Entry<ContactType, String> entry : allContacts.entrySet()) {
@@ -82,44 +83,53 @@ public class DataStreamSerializer implements IOStrategy {
                     case EXPERIENCE:
                     case EDUCATION:
                         List<Organization> organizations = ((OrganizationSection) entry.getValue()).getOrganizations();
-                        dos.writeInt(organizations.size());
-                        for (Organization organization : organizations) {
-                            Link link = organization.getHomePage();
-                            dos.writeUTF(link.getName());
+                        CollectionFunction<Organization> orgFunction = (org, dosOrg) -> {
+                            Link link = org.getHomePage();
+                            dosOrg.writeUTF(link.getName());
                             String url = link.getUrl();
                             if (url != null) {
-                                dos.writeInt(0);
-                                dos.writeUTF(url);
+                                dosOrg.writeUTF(url);
                             } else {
-                                dos.writeInt(1);
+                                dosOrg.writeUTF("");
                             }
+                            dosOrg.writeInt(org.getPositions().size());
 
-                            List<Organization.Position> positions = organization.getPositions();
-                            dos.writeInt(positions.size());
-                            for (Organization.Position position : positions) {
-                                dos.writeUTF(position.getStartDate().toString());
-                                dos.writeUTF(position.getEndDate().toString());
-                                dos.writeUTF(position.getTitle());
+                            CollectionFunction<Organization.Position> posFunction = (position, dosPos) -> {
+                                dosPos.writeUTF(position.getStartDate().toString());
+                                dosPos.writeUTF(position.getEndDate().toString());
+                                dosPos.writeUTF(position.getTitle());
                                 String description = position.getDescription();
                                 if (description != null) {
-                                    dos.writeInt(0);
-                                    dos.writeUTF(description);
+                                    dosPos.writeUTF(description);
                                 } else {
-                                    dos.writeInt(1);
+                                    dosPos.writeUTF("");
                                 }
-                            }
-                        }
+                            };
+                            writeWithException((List<T>) org.getPositions(), dosOrg, posFunction);
+                        };
+                        dos.writeInt(organizations.size());
+                        writeWithException((List<T>) organizations, dos, orgFunction);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
                         List<String> strings = ((MarkedTextSection) entry.getValue()).getAllText();
+                        CollectionFunction<String> strFunction = (str, dosStr) -> dosStr.writeUTF(str);
                         dos.writeInt(strings.size());
-                        for (String text : strings) {
-                            dos.writeUTF(text);
-                        }
+                        writeWithException((List<T>) strings, dos, strFunction);
                         break;
                 }
             }
         }
     }
+
+    private void writeWithException(List<T> collection, DataOutputStream dos, CollectionFunction collectionFunction) throws IOException {
+        for (T collect : collection) {
+            collectionFunction.write(collect, dos);
+        }
+    }
+}
+
+@FunctionalInterface
+interface CollectionFunction<T> {
+    void write(T t, DataOutputStream d) throws IOException;
 }
