@@ -5,22 +5,26 @@ import com.urise.webapp.model.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class DataStreamSerializer<T> implements IOStrategy {
+public class DataStreamSerializer implements IOStrategy {
     @Override
     public Resume doRead(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
             String uuid = dis.readUTF();
             String fullName = dis.readUTF();
+
             int contactsSize = dis.readInt();
             Resume resume = new Resume(uuid, fullName);
             for (int i = 0; i < contactsSize; i++) {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
             }
-            while (dis.available() > 0) {
-                SectionType sectionType = SectionType.valueOf(dis.readUTF());
+            int allSectionsSize = dis.readInt();
+            for (int i = 0; i < allSectionsSize; i++) {
+                String type = dis.readUTF();
+                SectionType sectionType = SectionType.valueOf(type);
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
@@ -63,73 +67,71 @@ public class DataStreamSerializer<T> implements IOStrategy {
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
 
-
             Map<ContactType, String> allContacts = resume.getAllContacts();
-            dos.writeInt(allContacts.size());
-            for (Map.Entry<ContactType, String> entry : allContacts.entrySet()) {
-                dos.writeUTF(entry.getKey().name());
-                dos.writeUTF(entry.getValue());
-            }
-
+            CollectionFunction<Map.Entry<ContactType, String>> mapContactFunction = map -> {
+                dos.writeUTF(map.getKey().name());
+                dos.writeUTF(map.getValue());
+            };
+            writeWithException(allContacts.entrySet(), dos, mapContactFunction);
             Map<SectionType, AbstractSection> allSections = resume.getAllSections();
-            for (Map.Entry<SectionType, AbstractSection> entry : allSections.entrySet()) {
-                SectionType sectionType = entry.getKey();
+
+            CollectionFunction<Map.Entry<SectionType, AbstractSection>> mapSectionFunction = map -> {
+                SectionType sectionType = map.getKey();
                 dos.writeUTF(sectionType.name());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        dos.writeUTF(entry.getValue().toString());
+                        dos.writeUTF(map.getValue().toString());
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
-                        List<Organization> organizations = ((OrganizationSection) entry.getValue()).getOrganizations();
-                        CollectionFunction<Organization> orgFunction = (org, dosOrg) -> {
+                        List<Organization> organizations = ((OrganizationSection) map.getValue()).getOrganizations();
+                        CollectionFunction<Organization> orgFunction = org -> {
                             Link link = org.getHomePage();
-                            dosOrg.writeUTF(link.getName());
+                            dos.writeUTF(link.getName());
                             String url = link.getUrl();
                             if (url != null) {
-                                dosOrg.writeUTF(url);
+                                dos.writeUTF(url);
                             } else {
-                                dosOrg.writeUTF("");
+                                dos.writeUTF("");
                             }
-                            dosOrg.writeInt(org.getPositions().size());
 
-                            CollectionFunction<Organization.Position> posFunction = (position, dosPos) -> {
-                                dosPos.writeUTF(position.getStartDate().toString());
-                                dosPos.writeUTF(position.getEndDate().toString());
-                                dosPos.writeUTF(position.getTitle());
+                            CollectionFunction<Organization.Position> posFunction = position -> {
+                                dos.writeUTF(position.getStartDate().toString());
+                                dos.writeUTF(position.getEndDate().toString());
+                                dos.writeUTF(position.getTitle());
                                 String description = position.getDescription();
                                 if (description != null) {
-                                    dosPos.writeUTF(description);
+                                    dos.writeUTF(description);
                                 } else {
-                                    dosPos.writeUTF("");
+                                    dos.writeUTF("");
                                 }
                             };
-                            writeWithException((List<T>) org.getPositions(), dosOrg, posFunction);
+                            writeWithException(org.getPositions(), dos, posFunction);
                         };
-                        dos.writeInt(organizations.size());
-                        writeWithException((List<T>) organizations, dos, orgFunction);
+                        writeWithException(organizations, dos, orgFunction);
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        List<String> strings = ((MarkedTextSection) entry.getValue()).getAllText();
-                        CollectionFunction<String> strFunction = (str, dosStr) -> dosStr.writeUTF(str);
-                        dos.writeInt(strings.size());
-                        writeWithException((List<T>) strings, dos, strFunction);
+                        List<String> strings = ((MarkedTextSection) map.getValue()).getAllText();
+                        CollectionFunction<String> strFunction = dos::writeUTF;
+                        writeWithException(strings, dos, strFunction);
                         break;
                 }
-            }
+            };
+            writeWithException(allSections.entrySet(), dos, mapSectionFunction);
         }
     }
 
-    private void writeWithException(List<T> collection, DataOutputStream dos, CollectionFunction collectionFunction) throws IOException {
+    private <T> void writeWithException(Collection<T> collection, DataOutputStream dos, CollectionFunction<T> collectionFunction) throws IOException {
+        dos.writeInt(collection.size());
         for (T collect : collection) {
-            collectionFunction.write(collect, dos);
+            collectionFunction.write(collect);
         }
     }
 }
 
 @FunctionalInterface
 interface CollectionFunction<T> {
-    void write(T t, DataOutputStream d) throws IOException;
+    void write(T t) throws IOException;
 }
