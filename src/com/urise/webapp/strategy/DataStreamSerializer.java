@@ -9,6 +9,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@FunctionalInterface
+interface CollectionWriteFunction<T> {
+    void write(T t) throws IOException;
+}
+
+@FunctionalInterface
+interface CollectionReadFunction {
+    void read() throws IOException;
+}
+
 public class DataStreamSerializer implements IOStrategy {
     @Override
     public Resume doRead(InputStream is) throws IOException {
@@ -16,15 +26,10 @@ public class DataStreamSerializer implements IOStrategy {
             String uuid = dis.readUTF();
             String fullName = dis.readUTF();
 
-            int contactsSize = dis.readInt();
             Resume resume = new Resume(uuid, fullName);
-            for (int i = 0; i < contactsSize; i++) {
-                resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
-            }
-            int allSectionsSize = dis.readInt();
-            for (int i = 0; i < allSectionsSize; i++) {
-                String type = dis.readUTF();
-                SectionType sectionType = SectionType.valueOf(type);
+            readWithException(dis, () -> resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF()));
+            readWithException(dis, () -> {
+                SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
@@ -32,31 +37,25 @@ public class DataStreamSerializer implements IOStrategy {
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
-                        int organizationsSize = dis.readInt();
                         List<Organization> organizations = new ArrayList<>();
-                        for (int k = 0; k < organizationsSize; k++) {
+                        readWithException(dis, () -> {
                             Link link = new Link(dis.readUTF(), dis.readUTF());
-                            int positionsSize = dis.readInt();
+
                             List<Organization.Position> positions = new ArrayList<>();
-                            for (int j = 0; j < positionsSize; j++) {
-                                positions.add(new Organization.Position(LocalDate.parse(dis.readUTF()),
-                                        LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()));
-                            }
+                            readWithException(dis, () -> positions.add(new Organization.Position(LocalDate.parse(dis.readUTF()),
+                                    LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF())));
                             organizations.add(new Organization(link, positions));
-                        }
+                        });
                         resume.addSection(sectionType, new OrganizationSection(organizations));
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
                         MarkedTextSection markedTextSection = new MarkedTextSection();
-                        int allTextElementSize = dis.readInt();
-                        for (int j = 0; j < allTextElementSize; j++) {
-                            markedTextSection.addTextElement(dis.readUTF());
-                        }
+                        readWithException(dis, () -> markedTextSection.addTextElement(dis.readUTF()));
                         resume.addSection(sectionType, markedTextSection);
                         break;
                 }
-            }
+            });
             return resume;
         }
     }
@@ -68,25 +67,24 @@ public class DataStreamSerializer implements IOStrategy {
             dos.writeUTF(resume.getFullName());
 
             Map<ContactType, String> allContacts = resume.getAllContacts();
-            CollectionFunction<Map.Entry<ContactType, String>> mapContactFunction = map -> {
-                dos.writeUTF(map.getKey().name());
-                dos.writeUTF(map.getValue());
-            };
-            writeWithException(allContacts.entrySet(), dos, mapContactFunction);
+            writeWithException(allContacts.entrySet(), dos, entry -> {
+                dos.writeUTF(entry.getKey().name());
+                dos.writeUTF(entry.getValue());
+            });
             Map<SectionType, AbstractSection> allSections = resume.getAllSections();
 
-            CollectionFunction<Map.Entry<SectionType, AbstractSection>> mapSectionFunction = map -> {
-                SectionType sectionType = map.getKey();
+            writeWithException(allSections.entrySet(), dos, entry -> {
+                SectionType sectionType = entry.getKey();
                 dos.writeUTF(sectionType.name());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        dos.writeUTF(map.getValue().toString());
+                        dos.writeUTF(entry.getValue().toString());
                         break;
                     case EXPERIENCE:
                     case EDUCATION:
-                        List<Organization> organizations = ((OrganizationSection) map.getValue()).getOrganizations();
-                        CollectionFunction<Organization> orgFunction = org -> {
+                        List<Organization> organizations = ((OrganizationSection) entry.getValue()).getOrganizations();
+                        writeWithException(organizations, dos, org -> {
                             Link link = org.getHomePage();
                             dos.writeUTF(link.getName());
                             String url = link.getUrl();
@@ -96,7 +94,7 @@ public class DataStreamSerializer implements IOStrategy {
                                 dos.writeUTF("");
                             }
 
-                            CollectionFunction<Organization.Position> posFunction = position -> {
+                            writeWithException(org.getPositions(), dos, position -> {
                                 dos.writeUTF(position.getStartDate().toString());
                                 dos.writeUTF(position.getEndDate().toString());
                                 dos.writeUTF(position.getTitle());
@@ -106,32 +104,30 @@ public class DataStreamSerializer implements IOStrategy {
                                 } else {
                                     dos.writeUTF("");
                                 }
-                            };
-                            writeWithException(org.getPositions(), dos, posFunction);
-                        };
-                        writeWithException(organizations, dos, orgFunction);
+                            });
+                        });
                         break;
                     case ACHIEVEMENT:
                     case QUALIFICATIONS:
-                        List<String> strings = ((MarkedTextSection) map.getValue()).getAllText();
-                        CollectionFunction<String> strFunction = dos::writeUTF;
-                        writeWithException(strings, dos, strFunction);
+                        List<String> strings = ((MarkedTextSection) entry.getValue()).getAllText();
+                        writeWithException(strings, dos, dos::writeUTF);
                         break;
                 }
-            };
-            writeWithException(allSections.entrySet(), dos, mapSectionFunction);
+            });
         }
     }
 
-    private <T> void writeWithException(Collection<T> collection, DataOutputStream dos, CollectionFunction<T> collectionFunction) throws IOException {
+    private <T> void writeWithException(Collection<T> collection, DataOutputStream dos, CollectionWriteFunction<T> collectionWriteFunction) throws IOException {
         dos.writeInt(collection.size());
         for (T collect : collection) {
-            collectionFunction.write(collect);
+            collectionWriteFunction.write(collect);
         }
     }
-}
 
-@FunctionalInterface
-interface CollectionFunction<T> {
-    void write(T t) throws IOException;
+    private void readWithException(DataInputStream dis, CollectionReadFunction collectionReadFunction) throws IOException {
+        int size = dis.readInt();
+        for (int i = 0; i < size; i++) {
+            collectionReadFunction.read();
+        }
+    }
 }

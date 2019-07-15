@@ -123,14 +123,12 @@ public class Organization implements Serializable {
             Position position = (Position) o;
             return Objects.equals(startDate, position.startDate) &&
                     Objects.equals(endDate, position.endDate) &&
-                    Objects.equals(title, position.title) &&
-                    Objects.equals(description, position.description);
+                    Objects.equals(title, position.title);
         }
-
 
         @Override
         public int hashCode() {
-            return Objects.hash(startDate, endDate, title, description);
+            return Objects.hash(startDate, endDate, title);
         }
 
         @Override
