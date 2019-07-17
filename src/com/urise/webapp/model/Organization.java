@@ -97,7 +97,11 @@ public class Organization implements Serializable {
             this.startDate = startDate;
             this.endDate = endDate;
             this.title = title;
-            this.description = description;
+            if (description == null) {
+                this.description = "";
+            } else {
+                this.description = description;
+            }
         }
 
         public LocalDate getStartDate() {
@@ -123,12 +127,13 @@ public class Organization implements Serializable {
             Position position = (Position) o;
             return Objects.equals(startDate, position.startDate) &&
                     Objects.equals(endDate, position.endDate) &&
-                    Objects.equals(title, position.title);
+                    Objects.equals(title, position.title) &&
+                    Objects.equals(description, position.description);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(startDate, endDate, title);
+            return Objects.hash(startDate, endDate, title, description);
         }
 
         @Override
