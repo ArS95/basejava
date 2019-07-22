@@ -14,24 +14,15 @@ public class StreamJava8 {
     }
 
     private static int minValue(int[] values) {
-        int[] valArray = Arrays.stream(values).sorted().distinct().toArray();
-        int length = valArray.length;
-        int result = 0;
-        for (int i = 0; i < length; i++) {
-            int value = valArray[i];
-            value = (int) (value * Math.pow(10, length - i - 1));
-            result += value;
-        }
-        return result;
+        return Arrays.stream(values).sorted().distinct().reduce(0, (a, b) -> 10 * a + b);
     }
 
     private static List<Integer> oddOrEven(List<Integer> integers) {
         Supplier<Stream<Integer>> streamSupplier = integers::stream;
-        if (streamSupplier.get().mapToInt(Integer::intValue).sum() % 2 != 0) {
-            return streamSupplier.get().filter((a) -> a % 2 == 0).collect(Collectors.toList());
+        return getList(streamSupplier, streamSupplier.get().mapToInt(Integer::intValue).sum() % 2 != 0);
+    }
 
-        } else {
-            return streamSupplier.get().filter((a) -> a % 2 != 0).collect(Collectors.toList());
-        }
+    private static List<Integer> getList(Supplier<Stream<Integer>> streamSupplier, boolean sumResult) {
+        return streamSupplier.get().filter(a -> (a % 2 == 0) == sumResult).collect(Collectors.toList());
     }
 }
