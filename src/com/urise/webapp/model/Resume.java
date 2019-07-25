@@ -8,7 +8,7 @@ import java.util.*;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Resume implements Serializable {
+public class Resume implements Serializable, Comparable<Resume> {
     private static final long serialVersionUID = 1L;
     private String uuid;
     private String fullName;
@@ -87,5 +87,11 @@ public class Resume implements Serializable {
                 "uuid='" + uuid + '\'' +
                 ", fullName='" + fullName + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Resume o) {
+        int res = o.getUuid().compareTo(uuid);
+        return res == 0 ? o.getFullName().compareTo(fullName) : res;
     }
 }
