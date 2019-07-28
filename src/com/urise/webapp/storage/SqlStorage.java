@@ -3,7 +3,6 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.strategy.Helper.Helper;
 import com.urise.webapp.strategy.Helper.MyStatement;
 import com.urise.webapp.strategy.SqlHelper;
 
@@ -16,7 +15,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class SqlStorage implements Storage {
-    private Helper<MyStatement> sqlHelper;
+    private SqlHelper sqlHelper;
     private static final Logger LOG = Logger.getLogger(SqlStorage.class.getName());
 
     protected SqlStorage(String dbUrl, String dbUser, String dbPassword) {
@@ -26,35 +25,43 @@ public class SqlStorage implements Storage {
     @Override
     public void clear() {
         LOG.info("Clear");
-        PreparedStatement statement = getStatement("DELETE FROM resume");
-        MyStatement myStatement = () -> statement;
-        checkResult(myStatement);
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            st.executeUpdate();
+            return st;
+        };
+        execute(myStatement, "DELETE FROM resume");
     }
 
     @Override
     public void update(Resume resume) {
         LOG.info("Update " + resume);
-        PreparedStatement statement = getStatement("UPDATE resume SET full_name = ? WHERE uuid = ?");
-        MyStatement myStatement = () -> {
-            setString(statement, resume.getFullName(), resume.getUuid());
-            return statement;
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            final String uuid = resume.getUuid();
+            setString(st, resume.getFullName(), uuid);
+            if (st.executeUpdate() != 1) {
+                LOG.warning("Resume " + uuid + " not exist");
+                throw new NotExistStorageException(uuid);
+            }
+            return st;
         };
-        if (checkResult(myStatement)) {
-            notExistException(resume.getUuid());
-        }
+        execute(myStatement, "UPDATE resume SET full_name = ? WHERE uuid = ?");
     }
 
     @Override
     public void save(Resume resume) {
         LOG.info("Save " + resume);
-        PreparedStatement statement = getStatement("INSERT INTO resume (uuid, full_name) VALUES (?,?)");
-        MyStatement myStatement = () -> {
-            setString(statement, resume.getUuid(), resume.getFullName());
-            return statement;
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            final String uuid = resume.getUuid();
+            setString(st, uuid, resume.getFullName());
+            try {
+                st.executeUpdate();
+            } catch (SQLException e) {
+                LOG.warning("Resume " + uuid + " already exist");
+                throw new ExistStorageException(e.getMessage(), uuid, e);
+            }
+            return st;
         };
-        if (checkResult(myStatement)) {
-            throw new ExistStorageException(resume.getUuid());
-        }
+        execute(myStatement, "INSERT INTO resume (uuid, full_name) VALUES (?,?)");
     }
 
     private void setString(PreparedStatement statement, String uuid, String full_name) throws SQLException {
@@ -62,87 +69,73 @@ public class SqlStorage implements Storage {
         statement.setString(2, full_name);
     }
 
-    private boolean checkResult(MyStatement statement) {
-        return sqlHelper.executeUpdate(statement) != 1;
-    }
-
     @Override
     public Resume get(String uuid) {
         LOG.info("Get " + uuid);
-        PreparedStatement statement = getStatement("SELECT * FROM resume r WHERE r.uuid = ?");
         Resume[] resume = new Resume[1];
-        MyStatement myStatement = () -> {
-            statement.setString(1, uuid);
-            ResultSet resultSet = statement.executeQuery();
-            checkNext(resultSet, uuid);
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            st.setString(1, uuid);
+            ResultSet resultSet = st.executeQuery();
+            if (!resultSet.next()) {
+                LOG.warning("Resume " + uuid + " not exist");
+                throw new NotExistStorageException(uuid);
+            }
             resume[0] = new Resume(uuid, resultSet.getString("full_name"));
-            return statement;
+            return st;
         };
-        executeQuery(myStatement);
+        execute(myStatement, "SELECT * FROM resume r WHERE r.uuid = ?");
         return resume[0];
     }
 
     @Override
     public void delete(String uuid) {
         LOG.info("Delete " + uuid);
-        PreparedStatement statement = getStatement("DELETE FROM resume WHERE uuid = ?");
-        MyStatement myStatement = () -> {
-            statement.setString(1, uuid);
-            ResultSet resultSet = statement.executeQuery();
-            checkNext(resultSet, uuid);
-            return statement;
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            st.setString(1, uuid);
+            try {
+                st.executeQuery();
+            } catch (SQLException e) {
+                LOG.warning("Resume " + uuid + " not exist");
+                throw new NotExistStorageException(e.getMessage(), uuid, e);
+            }
+            return st;
         };
-        executeQuery(myStatement);
-    }
-
-    private void checkNext(ResultSet resultSet, String uuid) throws SQLException {
-        if (!resultSet.next()) {
-            notExistException(uuid);
-        }
+        execute(myStatement, "DELETE FROM resume WHERE uuid = ?");
     }
 
     @Override
     public List<Resume> getAllSorted() {
-        LOG.info("GerAllSorted ");
-        PreparedStatement statement = getStatement("SELECT * FROM resume");
+        LOG.info("GetAllSorted ");
         List<Resume> sortedList = new ArrayList<>();
-        MyStatement myStatement = () -> {
-            ResultSet resultSet = statement.executeQuery();
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            ResultSet resultSet = st.executeQuery();
             while (resultSet.next()) {
                 sortedList.add(new Resume(resultSet.getString("uuid").trim(), resultSet.getString("full_name")));
             }
-            return statement;
+            return st;
         };
-        executeQuery(myStatement);
+        execute(myStatement, "SELECT * FROM resume");
         Collections.sort(sortedList);
         return sortedList;
     }
 
     @Override
     public int size() {
-        PreparedStatement statement = getStatement("SELECT COUNT(*) AS count FROM resume");
-        int[] size = {0};
-        MyStatement myStatement = () -> {
-            ResultSet resultSet = statement.executeQuery();
+        LOG.info("Size");
+        final int[] size = new int[1];
+        MyStatement<PreparedStatement> myStatement = (st) -> {
+            ResultSet resultSet = st.executeQuery();
             while (resultSet.next()) {
                 size[0] += resultSet.getInt("count");
             }
-            return statement;
+            return st;
         };
-        executeQuery(myStatement);
+        execute(myStatement, "SELECT COUNT(*) AS count FROM resume");
         return size[0];
     }
 
-    private void executeQuery(MyStatement statement) {
-        sqlHelper.executeQuery(statement);
-    }
-
-    private void notExistException(String uuid) {
-        throw new NotExistStorageException(uuid);
-    }
-
-    private PreparedStatement getStatement(String sql) {
-        return sqlHelper.getStatement(sql);
+    private void execute(MyStatement statement, String sql) {
+        sqlHelper.execute(statement, sql);
     }
 }
 

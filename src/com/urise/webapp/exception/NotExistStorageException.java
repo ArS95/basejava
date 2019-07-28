@@ -10,4 +10,8 @@ public class NotExistStorageException extends StorageException {
     public NotExistStorageException(SQLException e) {
         super(e);
     }
+
+    public NotExistStorageException(String message, String uuid, Exception e) {
+        super(message, uuid, e);
+    }
 }
