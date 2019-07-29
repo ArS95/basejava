@@ -3,8 +3,8 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.strategy.Helper.MyStatement;
-import com.urise.webapp.strategy.SqlHelper;
+import com.urise.webapp.util.helper.StatementExecutor;
+import com.urise.webapp.util.helper.SqlHelper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,9 +25,9 @@ public class SqlStorage implements Storage {
     @Override
     public void clear() {
         LOG.info("Clear");
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor myStatement = (st) -> {
             st.executeUpdate();
-            return st;
+            return null;
         };
         execute(myStatement, "DELETE FROM resume");
     }
@@ -35,14 +35,14 @@ public class SqlStorage implements Storage {
     @Override
     public void update(Resume resume) {
         LOG.info("Update " + resume);
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor myStatement = (st) -> {
             final String uuid = resume.getUuid();
             setString(st, resume.getFullName(), uuid);
             if (st.executeUpdate() != 1) {
                 LOG.warning("Resume " + uuid + " not exist");
                 throw new NotExistStorageException(uuid);
             }
-            return st;
+            return null;
         };
         execute(myStatement, "UPDATE resume SET full_name = ? WHERE uuid = ?");
     }
@@ -50,7 +50,7 @@ public class SqlStorage implements Storage {
     @Override
     public void save(Resume resume) {
         LOG.info("Save " + resume);
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor myStatement = (st) -> {
             final String uuid = resume.getUuid();
             setString(st, uuid, resume.getFullName());
             try {
@@ -59,7 +59,7 @@ public class SqlStorage implements Storage {
                 LOG.warning("Resume " + uuid + " already exist");
                 throw new ExistStorageException(e.getMessage(), uuid, e);
             }
-            return st;
+            return null;
         };
         execute(myStatement, "INSERT INTO resume (uuid, full_name) VALUES (?,?)");
     }
@@ -72,25 +72,22 @@ public class SqlStorage implements Storage {
     @Override
     public Resume get(String uuid) {
         LOG.info("Get " + uuid);
-        Resume[] resume = new Resume[1];
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor<Resume> myStatement = (st) -> {
             st.setString(1, uuid);
             ResultSet resultSet = st.executeQuery();
             if (!resultSet.next()) {
                 LOG.warning("Resume " + uuid + " not exist");
                 throw new NotExistStorageException(uuid);
             }
-            resume[0] = new Resume(uuid, resultSet.getString("full_name"));
-            return st;
+            return new Resume(uuid, resultSet.getString("full_name"));
         };
-        execute(myStatement, "SELECT * FROM resume r WHERE r.uuid = ?");
-        return resume[0];
+        return execute(myStatement, "SELECT * FROM resume r WHERE r.uuid = ?");
     }
 
     @Override
     public void delete(String uuid) {
         LOG.info("Delete " + uuid);
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor myStatement = (st) -> {
             st.setString(1, uuid);
             try {
                 st.executeQuery();
@@ -98,7 +95,7 @@ public class SqlStorage implements Storage {
                 LOG.warning("Resume " + uuid + " not exist");
                 throw new NotExistStorageException(e.getMessage(), uuid, e);
             }
-            return st;
+            return null;
         };
         execute(myStatement, "DELETE FROM resume WHERE uuid = ?");
     }
@@ -106,36 +103,34 @@ public class SqlStorage implements Storage {
     @Override
     public List<Resume> getAllSorted() {
         LOG.info("GetAllSorted ");
-        List<Resume> sortedList = new ArrayList<>();
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor<List<Resume>> myStatement = (st) -> {
+            List<Resume> sortedList = new ArrayList<>();
             ResultSet resultSet = st.executeQuery();
             while (resultSet.next()) {
                 sortedList.add(new Resume(resultSet.getString("uuid").trim(), resultSet.getString("full_name")));
             }
-            return st;
+            Collections.sort(sortedList);
+            return sortedList;
         };
-        execute(myStatement, "SELECT * FROM resume");
-        Collections.sort(sortedList);
-        return sortedList;
+        return execute(myStatement, "SELECT * FROM resume");
     }
 
     @Override
     public int size() {
         LOG.info("Size");
-        final int[] size = new int[1];
-        MyStatement<PreparedStatement> myStatement = (st) -> {
+        StatementExecutor<Integer> myStatement = (st) -> {
+            int size = 0;
             ResultSet resultSet = st.executeQuery();
             while (resultSet.next()) {
-                size[0] += resultSet.getInt("count");
+                size += resultSet.getInt("count");
             }
-            return st;
+            return size;
         };
-        execute(myStatement, "SELECT COUNT(*) AS count FROM resume");
-        return size[0];
+        return execute(myStatement, "SELECT COUNT(*) AS count FROM resume");
     }
 
-    private void execute(MyStatement statement, String sql) {
-        sqlHelper.execute(statement, sql);
+    private <T> T execute(StatementExecutor<T> statement, String sql) {
+        return sqlHelper.execute(statement, sql);
     }
 }
 
