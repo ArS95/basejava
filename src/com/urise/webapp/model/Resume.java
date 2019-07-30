@@ -91,7 +91,7 @@ public class Resume implements Serializable, Comparable<Resume> {
 
     @Override
     public int compareTo(Resume o) {
-        int res = o.getUuid().compareTo(uuid);
-        return res == 0 ? o.getFullName().compareTo(fullName) : res;
+        int res = fullName.compareTo(o.fullName);
+        return res != 0 ? res : uuid.compareTo(o.uuid);
     }
 }
