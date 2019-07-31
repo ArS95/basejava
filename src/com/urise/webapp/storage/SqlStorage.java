@@ -25,7 +25,7 @@ public class SqlStorage implements Storage {
     @Override
     public void clear() {
         LOG.info("Clear");
-        StatementExecutor<Object> stExecutor = (st) -> {
+        StatementExecutor<Void> stExecutor = (st) -> {
             st.executeUpdate();
             return null;
         };
@@ -35,7 +35,7 @@ public class SqlStorage implements Storage {
     @Override
     public void update(Resume resume) {
         LOG.info("Update " + resume);
-        StatementExecutor<Object> stExecutor = (st) -> {
+        StatementExecutor<Void> stExecutor = (st) -> {
             final String uuid = resume.getUuid();
             setString(st, resume.getFullName(), uuid);
             if (st.executeUpdate() != 1) {
@@ -50,7 +50,7 @@ public class SqlStorage implements Storage {
     @Override
     public void save(Resume resume) {
         LOG.info("Save " + resume);
-        StatementExecutor<Object> stExecutor = (st) -> {
+        StatementExecutor<Void> stExecutor = (st) -> {
             final String uuid = resume.getUuid();
             setString(st, uuid, resume.getFullName());
             try {
@@ -91,7 +91,7 @@ public class SqlStorage implements Storage {
     @Override
     public void delete(String uuid) {
         LOG.info("Delete " + uuid);
-        StatementExecutor<Object> stExecutor = (st) -> {
+        StatementExecutor<Void> stExecutor = (st) -> {
             st.setString(1, uuid);
             if (st.executeUpdate() != 1) {
                 LOG.warning("Resume " + uuid + " not exist");
@@ -123,7 +123,7 @@ public class SqlStorage implements Storage {
             int size = 0;
             ResultSet resultSet = st.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getInt("count");
+                size =  resultSet.getInt("count");
             }
             return size;
         };
