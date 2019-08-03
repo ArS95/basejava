@@ -3,6 +3,7 @@ package com.urise.webapp.storage;
 import com.urise.webapp.Config;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
+import com.urise.webapp.model.ContactType;
 import com.urise.webapp.model.Resume;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,16 +12,17 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractStorageTest {
 
     protected static final File STORAGE_DIR = Config.get().getStorageDir();
-    private static final String UUID_1 = "uuid1";
-    private static final String UUID_2 = "uuid2";
-    private static final String UUID_3 = "uuid3";
-    private static final String UUID_4 = "uuid4";
+    private static final String UUID_1 = UUID.randomUUID().toString();
+    private static final String UUID_2 = UUID.randomUUID().toString();
+    private static final String UUID_3 = UUID.randomUUID().toString();
+    private static final String UUID_4 = UUID.randomUUID().toString();
     private static final Resume RESUME_1;
     private static final Resume RESUME_2;
     private static final Resume RESUME_3;
@@ -32,8 +34,8 @@ public abstract class AbstractStorageTest {
         RESUME_3 = new Resume(UUID_3, "Name3");
         RESUME_4 = new Resume(UUID_4, "Name4");
 
-//        RESUME_1.addContact(ContactType.EMAIL, "mail1@ya.ru");
-//        RESUME_1.addContact(ContactType.PHONE_NUMBER, "11111");
+        RESUME_1.addContact(ContactType.EMAIL, "mail1@ya.ru");
+        RESUME_1.addContact(ContactType.PHONE_NUMBER, "11111");
 //        RESUME_1.addSection(SectionType.OBJECTIVE, new SimpleTextSection("Objective1"));
 //        RESUME_1.addSection(SectionType.PERSONAL, new SimpleTextSection("Personal data"));
 //        RESUME_1.addSection(SectionType.ACHIEVEMENT, new MarkedTextSection("Achivment11", "Achivment12", "Achivment13"));
@@ -49,8 +51,8 @@ public abstract class AbstractStorageTest {
 //                                new Organization.Position(1996, Month.JANUARY, 2000, Month.DECEMBER, "aspirant", null),
 //                                new Organization.Position(2001, Month.MARCH, 2005, Month.JANUARY, "student", "IT facultet")),
 //                        new Organization("Organization12", "http://Organization12.ru")));
-//        RESUME_2.addContact(ContactType.SKYPE, "skype2");
-//        RESUME_2.addContact(ContactType.PHONE_NUMBER, "22222");
+        RESUME_2.addContact(ContactType.SKYPE, "skype2");
+        RESUME_2.addContact(ContactType.PHONE_NUMBER, "22222");
 //        RESUME_1.addSection(SectionType.EXPERIENCE,
 //                new OrganizationSection(
 //                        new Organization("Organization2", "http://Organization2.ru",

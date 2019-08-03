@@ -1,4 +1,4 @@
-package com.urise.webapp.util.helper;
+package com.urise.webapp.sql.helper;
 
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.sql.ConnectionFactory;
@@ -19,6 +19,22 @@ public class SqlHelper {
         try (Connection connection = factory.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             return statement.execute(preparedStatement);
+        } catch (SQLException e) {
+            throw new StorageException(e);
+        }
+    }
+
+    public <T> T transactionExecute(SqlTransaction<T> executor) {
+        try (Connection connection = factory.getConnection()) {
+            try {
+                connection.setAutoCommit(false);
+                T res = executor.execute(connection);
+                connection.commit();
+                return res;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw ExceptionUtil.convertException(e);
+            }
         } catch (SQLException e) {
             throw new StorageException(e);
         }

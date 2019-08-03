@@ -53,6 +53,10 @@ public class Resume implements Serializable, Comparable<Resume> {
         contacts.put(ContactType, contact);
     }
 
+    public void addContactList(EnumMap<ContactType, String> contacts) {
+        this.contacts = contacts;
+    }
+
     public Map<SectionType, AbstractSection> getAllSections() {
         return new EnumMap<>(sections);
     }

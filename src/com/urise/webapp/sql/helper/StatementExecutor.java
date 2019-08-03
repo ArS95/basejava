@@ -1,4 +1,4 @@
-package com.urise.webapp.util.helper;
+package com.urise.webapp.sql.helper;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
