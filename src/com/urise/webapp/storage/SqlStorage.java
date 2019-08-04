@@ -4,6 +4,7 @@ import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.ContactType;
 import com.urise.webapp.model.Resume;
 import com.urise.webapp.sql.helper.SqlHelper;
+import com.urise.webapp.sql.helper.StatementExecutor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,34 +33,48 @@ public class SqlStorage implements Storage {
     @Override
     public void update(Resume resume) {
         LOG.info("Update " + resume);
-        executeSaveAndUpdate(resume, "UPDATE resume SET full_name = ? WHERE uuid = ?", "UPDATE contact SET type = ?, value = ? WHERE resume_uuid = ?");
+        sqlHelper.<Void>transactionExecute(conn -> {
+            final String uuid = resume.getUuid();
+            try (PreparedStatement st = conn.prepareStatement("DELETE FROM contact WHERE resume_uuid = ?")) {
+                st.setString(1, uuid);
+                st.executeUpdate();
+            }
+            executeSaveAndUpdate(resume, "UPDATE resume SET full_name = ? WHERE uuid = ?", conn, st -> {
+                executeUpdate(st, uuid);
+                return null;
+            });
+            return null;
+        });
     }
 
     @Override
     public void save(Resume resume) {
         LOG.info("Save " + resume);
-        executeSaveAndUpdate(resume, "INSERT INTO resume (full_name,uuid) VALUES (?,?)", "INSERT INTO contact (type, value, resume_uuid) VALUES (?,?,?)");
-    }
-
-    private void executeSaveAndUpdate(Resume resume, String resumeSql, String contactSql) {
         sqlHelper.<Void>transactionExecute(conn -> {
-            final String uuid = resume.getUuid();
-            try (PreparedStatement st = conn.prepareStatement(resumeSql)) {
-                st.setString(1, resume.getFullName());
-                st.setString(2, uuid);
-                executeUpdate(st, uuid);
-            }
-            try (PreparedStatement st = conn.prepareStatement(contactSql)) {
-                for (Map.Entry<ContactType, String> e : resume.getAllContacts().entrySet()) {
-                    st.setString(1, e.getKey().name());
-                    st.setString(2, e.getValue());
-                    st.setString(3, uuid);
-                    st.addBatch();
-                }
-                st.executeBatch();
-            }
+            executeSaveAndUpdate(resume, "INSERT INTO resume (full_name,uuid) VALUES (?,?)", conn, st -> {
+                st.executeUpdate();
+                return null;
+            });
             return null;
         });
+    }
+
+    private void executeSaveAndUpdate(Resume resume, String resumeSql, Connection connection, StatementExecutor<Void> statementExecutor) throws SQLException {
+        final String uuid = resume.getUuid();
+        try (PreparedStatement st = connection.prepareStatement(resumeSql)) {
+            st.setString(1, resume.getFullName());
+            st.setString(2, uuid);
+            statementExecutor.execute(st);
+        }
+        try (PreparedStatement st = connection.prepareStatement("INSERT INTO contact (type, value, resume_uuid) VALUES (?,?,?)")) {
+            for (Map.Entry<ContactType, String> e : resume.getAllContacts().entrySet()) {
+                st.setString(1, e.getKey().name());
+                st.setString(2, e.getValue());
+                st.setString(3, uuid);
+                st.addBatch();
+            }
+            st.executeBatch();
+        }
     }
 
     @Override
@@ -108,23 +123,18 @@ public class SqlStorage implements Storage {
     public List<Resume> getAllSorted() {
         LOG.info("GetAllSorted ");
         return sqlHelper.transactionExecute(conn -> {
-            List<Resume> sortedList = new ArrayList<>();
-            executeSqlAction(conn, "SELECT * FROM resume", set -> {
+            List<Resume> sortedList = new LinkedList<>();
+            executeSqlAction(conn, "SELECT * FROM resume ORDER BY full_name,uuid", set -> {
                 sortedList.add(new Resume(set.getString("uuid"), set.getString("full_name")));
             });
-            Map<String, EnumMap<ContactType, String>> resultMap = new HashMap<>();
             executeSqlAction(conn, "SELECT * FROM contact", set -> {
-                if (resultMap.containsKey(set.getString("resume_uuid"))) {
-                    putMap(set, resultMap, resultMap.get(set.getString("resume_uuid")));
-                } else {
-                    putMap(set, resultMap, new EnumMap<>(ContactType.class));
+                for (Resume r : sortedList) {
+                    if (r.getUuid().equals(set.getString("resume_uuid"))) {
+                        r.addContact(ContactType.valueOf(set.getString("type")), set.getString("value"));
+                        break;
+                    }
                 }
             });
-            sortedList.forEach(r -> resultMap.forEach((k, v) -> {
-                if (k.equals(r.getUuid())) {
-                    r.addContactList(v);
-                }
-            }));
             return sortedList;
         });
     }
@@ -136,11 +146,6 @@ public class SqlStorage implements Storage {
                 element.action(resultSet);
             }
         }
-    }
-
-    private void putMap(ResultSet resultSet, Map<String, EnumMap<ContactType, String>> resultMap, EnumMap<ContactType, String> contactMap) throws SQLException {
-        contactMap.put(ContactType.valueOf(resultSet.getString("type")), resultSet.getString("value"));
-        resultMap.put(resultSet.getString("resume_uuid"), contactMap);
     }
 
     @Override
