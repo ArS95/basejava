@@ -36,6 +36,8 @@ public abstract class AbstractStorageTest {
 
         RESUME_1.addContact(ContactType.EMAIL, "mail1@ya.ru");
         RESUME_1.addContact(ContactType.PHONE_NUMBER, "11111");
+        RESUME_4.addContact(ContactType.PHONE_NUMBER, "555");
+        RESUME_1.addContact(ContactType.SKYPE, "Sobaka@mail.ru");
 //        RESUME_1.addSection(SectionType.OBJECTIVE, new SimpleTextSection("Objective1"));
 //        RESUME_1.addSection(SectionType.PERSONAL, new SimpleTextSection("Personal data"));
 //        RESUME_1.addSection(SectionType.ACHIEVEMENT, new MarkedTextSection("Achivment11", "Achivment12", "Achivment13"));
@@ -81,9 +83,11 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void updateTest() {
-        Resume newResume = new Resume(UUID_3, "E");
+        Resume newResume = new Resume(UUID_1, "E");
+        newResume.addContact(ContactType.PHONE_NUMBER,"456757");
+        newResume.addContact(ContactType.EMAIL,"mail.ru");
         storage.update(newResume);
-        assertEquals(newResume, storage.get(UUID_3));
+        assertEquals(newResume, storage.get(UUID_1));
     }
 
     @Test(expected = NotExistStorageException.class)
