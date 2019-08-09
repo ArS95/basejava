@@ -3,8 +3,7 @@ package com.urise.webapp.storage;
 import com.urise.webapp.Config;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
-import com.urise.webapp.model.ContactType;
-import com.urise.webapp.model.Resume;
+import com.urise.webapp.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,10 +37,11 @@ public abstract class AbstractStorageTest {
         RESUME_1.addContact(ContactType.PHONE_NUMBER, "11111");
         RESUME_4.addContact(ContactType.PHONE_NUMBER, "555");
         RESUME_1.addContact(ContactType.SKYPE, "Sobaka@mail.ru");
-//        RESUME_1.addSection(SectionType.OBJECTIVE, new SimpleTextSection("Objective1"));
-//        RESUME_1.addSection(SectionType.PERSONAL, new SimpleTextSection("Personal data"));
-//        RESUME_1.addSection(SectionType.ACHIEVEMENT, new MarkedTextSection("Achivment11", "Achivment12", "Achivment13"));
-//        RESUME_1.addSection(SectionType.QUALIFICATIONS, new MarkedTextSection("Java", "SQL", "JavaScript"));
+        RESUME_1.addSection(SectionType.OBJECTIVE, new SimpleTextSection("Objective1"));
+        RESUME_1.addSection(SectionType.PERSONAL, new SimpleTextSection("Personal data"));
+        RESUME_1.addSection(SectionType.ACHIEVEMENT, new MarkedTextSection("Achivment11", "Achivment12", "Achivment13"));
+        RESUME_1.addSection(SectionType.QUALIFICATIONS, new MarkedTextSection("Java", "SQL", "JavaScript"));
+        RESUME_4.addSection(SectionType.QUALIFICATIONS, new MarkedTextSection("Java", "SQL", "JavaScript"));
 //        RESUME_1.addSection(SectionType.EXPERIENCE,
 //                new OrganizationSection(
 //                        new Organization("Organization11", "http://Organization11.ru",
@@ -151,6 +151,7 @@ public abstract class AbstractStorageTest {
     }
 
     private void assertGet(Resume resume) {
-        assertEquals(resume, storage.get(resume.getUuid()));
+        final Resume actual = storage.get(resume.getUuid());
+        assertEquals(resume, actual);
     }
 }
