@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ResumeServlet extends HttpServlet {
-    private Storage storage;
+       private Storage storage;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
