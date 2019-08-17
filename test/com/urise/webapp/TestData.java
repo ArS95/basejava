@@ -23,6 +23,8 @@ public class TestData {
 
         RESUME_1.addContact(ContactType.EMAIL, "mail1@ya.ru");
         RESUME_1.addContact(ContactType.PHONE_NUMBER, "11111");
+        RESUME_1.addContact(ContactType.LINKED_IN, "Linked@ya.ru");
+        RESUME_1.addContact(ContactType.GIT_HUB, "https://github.com/ArS95");
         RESUME_4.addContact(ContactType.PHONE_NUMBER, "555");
         RESUME_1.addContact(ContactType.SKYPE, "Sobaka@mail.ru");
         RESUME_1.addSection(SectionType.OBJECTIVE, new SimpleTextSection("Objective1"));
