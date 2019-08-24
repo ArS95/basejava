@@ -23,15 +23,15 @@ public class ResumeServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
-        if (uuid != null) {
-            String fullName = request.getParameter("fullName");
-            final Resume resume = storage.get(uuid);
-            resume.setFullName(fullName);
+
+        if (uuid != null && uuid.trim().length() != 0) {
+            Resume resume = storage.get(uuid);
+            resume.setFullName(request.getParameter("fullName"));
             addContact(resume, request);
             addSection(resume, request);
             storage.update(resume);
         } else {
-            final Resume resume = new Resume(request.getParameter("fullName"));
+            Resume resume = new Resume(request.getParameter("fullName"));
             addContact(resume, request);
             addSection(resume, request);
             storage.save(resume);
@@ -49,13 +49,13 @@ public class ResumeServlet extends HttpServlet {
         }
         Resume resume;
         switch (action) {
-            case "add":
-                request.getRequestDispatcher("/WEB-INF/jsp/add.jsp").forward(request, response);
-                return;
             case "delete":
                 storage.delete(uuid);
                 response.sendRedirect("resume");
                 return;
+            case "add":
+                resume = new Resume();
+                break;
             case "view":
             case "edit":
                 resume = storage.get(uuid);

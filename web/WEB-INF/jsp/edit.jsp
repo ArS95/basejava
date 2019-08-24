@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" href="css/style.css">
     <jsp:useBean id="resume" type="com.urise.webapp.model.Resume" scope="request"/>
-    <title>Резюме ${resume.fullName}</title>
+    <title>Резюме ${resume.fullName != null ?resume.fullName: "" }</title>
 </head>
 <body>
 <jsp:include page="fragments/header.jsp"/>
@@ -25,12 +25,11 @@
                 <dd><input type="text" name="${type.name()}" size="30" value="${resume.getContact(type)}"></dd>
             </dl>
         </c:forEach>
-
         <h3>Секции:</h3>
         <c:forEach var="section" items="<%=SectionType.values()%>">
             <dl>
                 <dt>${section.title}</dt>
-                <dd><input type="text" name="${section.name()}" size="30" value="${resume.getSection(section)}"><br/>
+                <dd><input type="text" name="${section.name()}" size="30" value="${resume.getSection(section)}"><br>
                 </dd>
             </dl>
         </c:forEach>
