@@ -12,7 +12,7 @@
 <body>
 <jsp:include page="fragments/header.jsp"/>
 <section>
-    <form method="post" action="resume" enctype="application/x-www-form-urlencoded">
+    <form id="resume" method="post" action="resume" enctype="application/x-www-form-urlencoded">
         <input type="hidden" name="uuid" value="${resume.uuid}">
         <dl>
             <dt>Имя:</dt>
@@ -29,8 +29,51 @@
         <c:forEach var="section" items="<%=SectionType.values()%>">
             <dl>
                 <dt>${section.title}</dt>
-                <dd><input type="text" name="${section.name()}" size="30" value="${resume.getSection(section)}"><br>
-                </dd>
+                <c:choose>
+                    <c:when test="${section.equals(SectionType.PERSONAL) || section.equals(SectionType.OBJECTIVE)}">
+                        <dd>
+                            <input type="text" name="${section.name()}" size="30" value="${resume.getSection(section)}"><br>
+                        </dd>
+                    </c:when>
+                    <c:when test="${section.equals(SectionType.ACHIEVEMENT) || section.equals(SectionType.QUALIFICATIONS)}">
+                        <dd>
+                            <textarea rows="3" cols="40" name="${section.name()}"><c:forEach var="element"
+                                                                                             items="${resume.getSection(section).allText}">${element}</c:forEach></textarea>
+                        </dd>
+                    </c:when>
+                    <c:when test="${section.equals(SectionType.EDUCATION) || section.equals(SectionType.EXPERIENCE)}">
+
+                        <dd>
+                            <input type="text" name="${section.name()}" size="30" value="${}">
+                        </dd>
+
+                        <br>
+                        <c:forEach var="organization" items="${resume.getSection(section).organizations}">
+                            <jsp:useBean id="organization" class="com.urise.webapp.model.Organization"/>
+                            <dd>
+                                <input type="text" name="${section.name()}" size="30" value="${organization.homePage.name}">
+                            </dd>
+<%--                            <c:forEach var="position" items="${organization.positions}">--%>
+<%--                                <jsp:useBean id="position" type="com.urise.webapp.model.Organization.Position"/>--%>
+<%--                                <table>--%>
+<%--                                    <tr>--%>
+<%--                                        <td><%=position.getStartDate().format(Position.FORMAT) + "-" + position.getEndDate().format(Position.FORMAT)%>--%>
+<%--                                        </td>--%>
+<%--                                        <td><strong>${position.title}</strong></td>--%>
+<%--                                    </tr>--%>
+<%--                                    <tr>--%>
+<%--                                        <td>${position.description}</td>--%>
+<%--                                    </tr>--%>
+<%--                                </table>--%>
+<%--                                <br>--%>
+<%--                            </c:forEach>--%>
+                        </c:forEach>
+
+
+                    </c:when>
+                </c:choose>
+                    <%--                <dd><input type="text" name="${section.name()}" size="30" value="${resume.getSection(section)}"><br>--%>
+                    <%--                </dd>--%>
             </dl>
         </c:forEach>
         <hr>

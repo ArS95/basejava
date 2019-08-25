@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ResumeServlet extends HttpServlet {
     private Storage storage;
@@ -71,7 +73,8 @@ public class ResumeServlet extends HttpServlet {
     private void addContact(Resume resume, HttpServletRequest request) {
         for (ContactType type : ContactType.values()) {
             String value = request.getParameter(type.name());
-            if (value != null) {
+            final int length = value.trim().length();
+            if (length > 0) {
                 resume.addContact(type, value);
             }
         }
@@ -80,7 +83,7 @@ public class ResumeServlet extends HttpServlet {
     private void addSection(Resume resume, HttpServletRequest request) {
         for (SectionType type : SectionType.values()) {
             String value = request.getParameter(type.name());
-            if (value != null) {
+            if (value != null && !value.equals("")) {
                 switch (type) {
                     case PERSONAL:
                     case OBJECTIVE:
@@ -89,7 +92,9 @@ public class ResumeServlet extends HttpServlet {
                         break;
                     case QUALIFICATIONS:
                     case ACHIEVEMENT:
-                        MarkedTextSection markedTextSection = new MarkedTextSection(value);
+                        MarkedTextSection markedTextSection = new MarkedTextSection(Arrays.stream(value.split("\r\n"))
+                                .map(x -> x + "\r\n")
+                                .collect(Collectors.toList()));
                         resume.addSection(type, markedTextSection);
                         break;
                 }

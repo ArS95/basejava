@@ -1,8 +1,5 @@
-<%@ page import="com.urise.webapp.util.HtmlUtil" %>
-<%@ page import="com.urise.webapp.model.SectionType" %>
-<%@ page import="com.urise.webapp.model.SimpleTextSection" %>
-<%@ page import="com.urise.webapp.model.MarkedTextSection" %>
-<%@ page import="com.urise.webapp.model.OrganizationSection" %>
+<%@ page import="com.urise.webapp.model.Organization.Position" %>
+<%@ page import="com.urise.webapp.model.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
@@ -15,58 +12,78 @@
 <body>
 <jsp:include page="fragments/header.jsp"/>
 <section>
-    <h2>${resume.fullName}&nbsp;<a href="resume?uuid=${resume.uuid}&action=edit"><img src="img/pencil.png"></a></h2>
-    <p>
+    <dl>
+        <dt><strong>Ф.И.О</strong></dt>
+        <dd>
+            <h2>${resume.fullName}&nbsp;<a href="resume?uuid=${resume.uuid}&action=edit"><img src="img/pencil.png"></a>
+            </h2>
+        </dd>
+    </dl>
+    <hr>
+    <h1>Контакты</h1>
     <dl><c:forEach var="contactEntry" items="${resume.allContacts}">
         <jsp:useBean id="contactEntry"
                      type="java.util.Map.Entry<com.urise.webapp.model.ContactType, java.lang.String>"/>
         <dt>
-            <h2> ${contactEntry.key.title} </h2>
+            <strong> ${contactEntry.key.title} </strong>
         </dt>
         <dd>
-            <a href="${contactEntry.value}">${contactEntry.value}</a>
-        </dd><br>
-        <%--        <%=HtmlUtil.toHtmlContact(contactEntry.getKey(), contactEntry.getValue())%>--%>
+            <a href="${contactEntry.value}">${contactEntry.getValue()}</a>
+        </dd>
+        <br>
+        <br>
     </c:forEach></dl>
     <dl><c:forEach var="sectionEntry" items="${resume.allSections}">
         <jsp:useBean id="sectionEntry"
                      type="java.util.Map.Entry<com.urise.webapp.model.SectionType, com.urise.webapp.model.AbstractSection>"/>
+        <dt>
+            <h3>${sectionEntry.key.title}</h3>
+        </dt>
         <c:choose>
             <c:when test="${sectionEntry.key.equals(SectionType.PERSONAL) || sectionEntry.key.equals(SectionType.OBJECTIVE)}">
-                <c:if test="${ sectionEntry.key != null && sectionEntry.value != null}">
-                    <dt>
-                        <h2>${sectionEntry.key.title}</h2>
-                    </dt>
-                    <br>
-                    <dd>
-                        <ul>
-                            <li>${sectionEntry.value}</li>
-                        </ul>
-                    </dd>
-                    <br>
-                </c:if>
-                <%--                <%=HtmlUtil.toHtmlSimpleTextSection(sectionEntry.getKey(), (SimpleTextSection) sectionEntry.getValue())%>--%>
+                <br>
+                <dd>
+                    <ul>
+                        <li>${sectionEntry.value.content}</li>
+                    </ul>
+                </dd>
+                <br>
             </c:when>
-            <%--            <c:when test="${sectionEntry.key.equals(SectionType.ACHIEVEMENT) || sectionEntry.key.equals(SectionType.QUALIFICATIONS)}">--%>
-            <%--                <jsp:useBean id="markedTextSection" type="com.urise.webapp.model.MarkedTextSection"/>--%>
-            <%--                <dt>--%>
-            <%--                    <h2>${sectionEntry.key}</h2><--%>
-            <%--                </dt><br>--%>
-            <%--                <dd>--%>
-            <%--                    <ul>--%>
-            <%--                        <c:forEach var="text" items="${markedTextSection.allText}">--%>
-            <%--                            <li>${text}</li>--%>
-            <%--                        </c:forEach>--%>
-            <%--                    </ul>--%>
-            <%--                </dd>--%>
-
-            <%--&lt;%&ndash;                <%=HtmlUtil.toHtmlMarkedTextSection(sectionEntry.getKey(), (MarkedTextSection) sectionEntry.getValue())%>&ndash;%&gt;--%>
-            <%--            </c:when>--%>
+            <c:when test="${sectionEntry.key.equals(SectionType.ACHIEVEMENT) || sectionEntry.key.equals(SectionType.QUALIFICATIONS)}">
+                <br>
+                <dd>
+                    <ul>
+                        <c:forEach var="text" items="${sectionEntry.value.allText}">
+                            <li>${text}</li>
+                        </c:forEach>
+                    </ul>
+                </dd>
+                <br>
+            </c:when>
             <c:when test="${sectionEntry.key.equals(SectionType.EXPERIENCE) || sectionEntry.key.equals(SectionType.EDUCATION)}">
-                <%--                <%=HtmlUtil.toHtmlOrganizationSection(sectionEntry.getKey(), (OrganizationSection) sectionEntry.getValue())%>--%>
+                <br>
+                <c:forEach var="organization" items="${sectionEntry.value.organizations}">
+                    <jsp:useBean id="organization" class="com.urise.webapp.model.Organization"/>
+                    <h4>
+                        <a href="${organization.homePage.url}">${organization.homePage.name}</a>
+                    </h4>
+                    <c:forEach var="position" items="${organization.positions}">
+                        <jsp:useBean id="position" type="com.urise.webapp.model.Organization.Position"/>
+                        <table>
+                            <tr>
+                                <td><%=position.getStartDate().format(Position.FORMAT) + "-" + position.getEndDate().format(Position.FORMAT)%>
+                                </td>
+                                <td><strong>${position.title}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>${position.description}</td>
+                            </tr>
+                        </table>
+                        <br>
+                    </c:forEach>
+                </c:forEach>
             </c:when>
         </c:choose>
-        <%--        <%=HtmlUtil.toHtmlSection(sectionEntry.getKey(), sectionEntry.getValue())%>--%>
     </c:forEach></dl>
 </section>
 <jsp:include page="fragments/footer.jsp"/>

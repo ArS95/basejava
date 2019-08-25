@@ -42,7 +42,7 @@ public class Resume implements Serializable, Comparable<Resume> {
     }
 
     public Map<ContactType, String> getAllContacts() {
-        return contacts;
+        return new EnumMap<>(contacts);
     }
 
     public String getContact(ContactType type) {
