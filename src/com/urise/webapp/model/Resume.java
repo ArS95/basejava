@@ -65,6 +65,14 @@ public class Resume implements Serializable, Comparable<Resume> {
         sections.put(sectionType, section);
     }
 
+    public void deleteSection(SectionType type) {
+        sections.remove(type);
+    }
+
+    public void deleteContact(ContactType type) {
+        contacts.remove(type);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

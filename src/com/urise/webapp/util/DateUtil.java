@@ -9,4 +9,8 @@ public class DateUtil {
     public static LocalDate of(int year, Month month) {
         return LocalDate.of(year, month, 1);
     }
+
+    public static LocalDate of(String date) {
+        return LocalDate.of(Integer.parseInt(date.substring(date.indexOf("/")  + 1)), Month.of(Integer.parseInt(date.substring(0, date.indexOf("/")))), 1);
+    }
 }

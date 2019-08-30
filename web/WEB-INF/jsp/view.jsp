@@ -63,7 +63,7 @@
             <c:when test="${sectionEntry.key.equals(SectionType.EXPERIENCE) || sectionEntry.key.equals(SectionType.EDUCATION)}">
                 <br>
                 <c:forEach var="organization" items="${sectionEntry.value.organizations}">
-                    <jsp:useBean id="organization" class="com.urise.webapp.model.Organization"/>
+                    <jsp:useBean id="organization" type="com.urise.webapp.model.Organization"/>
                     <h4>
                         <a href="${organization.homePage.url}">${organization.homePage.name}</a>
                     </h4>

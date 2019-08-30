@@ -2,7 +2,7 @@ package com.urise.webapp.model;
 
 public enum ContactType {
     PHONE_NUMBER("Номер телефона"),
-    SKYPE("Skype") ,
+    SKYPE("Skype"),
     EMAIL("Электронная почта"),
     LINKED_IN("Linked_In"),
     GIT_HUB("Git_Hub"),
@@ -19,11 +19,4 @@ public enum ContactType {
         return title;
     }
 
-    protected String toHtml0(String value) {
-        return title + ":" + value;
-    }
-
-    public String toHtml(String value) {
-        return value == null ? "" : toHtml0(value);
-    }
 }

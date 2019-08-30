@@ -3,6 +3,7 @@ package com.urise.webapp.web;
 import com.urise.webapp.Config;
 import com.urise.webapp.model.*;
 import com.urise.webapp.storage.Storage;
+import com.urise.webapp.util.DateUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -10,7 +11,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ResumeServlet extends HttpServlet {
@@ -26,16 +29,14 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
 
-        if (uuid != null && uuid.trim().length() != 0) {
-            Resume resume = storage.get(uuid);
+        if (uuid != null && !uuid.trim().equals("")) {
+            Resume resume = storage.get(uuid.trim());
             resume.setFullName(request.getParameter("fullName"));
-            addContact(resume, request);
-            addSection(resume, request);
+            addContactAndSection(resume, request);
             storage.update(resume);
         } else {
             Resume resume = new Resume(request.getParameter("fullName"));
-            addContact(resume, request);
-            addSection(resume, request);
+            addContactAndSection(resume, request);
             storage.save(resume);
         }
         response.sendRedirect("resume");
@@ -70,35 +71,102 @@ public class ResumeServlet extends HttpServlet {
                 .forward(request, response);
     }
 
+    private void addContactAndSection(Resume resume, HttpServletRequest request) {
+        addContact(resume, request);
+        addSection(resume, request);
+    }
+
     private void addContact(Resume resume, HttpServletRequest request) {
         for (ContactType type : ContactType.values()) {
+            resume.deleteContact(type);
             String value = request.getParameter(type.name());
-            final int length = value.trim().length();
-            if (length > 0) {
-                resume.addContact(type, value);
+            if (value != null && !value.trim().equals("")) {
+                resume.addContact(type, value.trim());
             }
         }
     }
 
     private void addSection(Resume resume, HttpServletRequest request) {
         for (SectionType type : SectionType.values()) {
-            String value = request.getParameter(type.name());
-            if (value != null && !value.equals("")) {
-                switch (type) {
-                    case PERSONAL:
-                    case OBJECTIVE:
+            resume.deleteSection(type);
+            String sectionName = type.name();
+            switch (type) {
+                case PERSONAL:
+                case OBJECTIVE:
+                    String value = request.getParameter(sectionName);
+                    if (value != null && !value.equals("")) {
                         SimpleTextSection simpleTextSection = new SimpleTextSection(value);
                         resume.addSection(type, simpleTextSection);
-                        break;
-                    case QUALIFICATIONS:
-                    case ACHIEVEMENT:
-                        MarkedTextSection markedTextSection = new MarkedTextSection(Arrays.stream(value.split("\r\n"))
+                    }
+                    break;
+                case QUALIFICATIONS:
+                case ACHIEVEMENT:
+                    String val = request.getParameter(sectionName);
+                    if (val != null && !val.trim().equals("")) {
+                        MarkedTextSection markedTextSection = new MarkedTextSection(Arrays.stream(val.trim().split("\r\n"))
                                 .map(x -> x + "\r\n")
                                 .collect(Collectors.toList()));
                         resume.addSection(type, markedTextSection);
-                        break;
-                }
+                    }
+                    break;
+                case EXPERIENCE:
+                case EDUCATION:
+                    String sizeStrOrg = request.getParameter("sizeOrg" + sectionName);
+                    if (sizeStrOrg != null) {
+                        int sizeOrg = Integer.parseInt(sizeStrOrg);
+                        OrganizationSection organizationSection = new OrganizationSection();
+                        for (int i = 0; i < sizeOrg + 1; i++) {
+
+                            String orgName = request.getParameter("orgName" + sectionName + i);
+                            if (orgName != null && !orgName.trim().equals("")) {
+                                String sizeStrPos = request.getParameter("sizePos" + sectionName + i);
+                                if (sizeStrPos != null) {
+                                    int sizePos = Integer.parseInt(sizeStrOrg);
+                                    List<Organization.Position> positionList = new ArrayList<>();
+                                    for (int j = 0; j < sizePos + 1; j++) {
+
+                                        String title = request.getParameter("title" + sectionName + i + j);
+                                        if (title != null && !title.trim().equals("")) {
+                                            Organization.Position position;
+                                            String endStrDate = request.getParameter("endDate" + sectionName + i + j);
+                                            String startStrDate = getTrimmedParameter(request, "startDate" + sectionName + i + j);
+                                            String description = getTrimmedParameter(request, "description" + sectionName + i + j);
+                                            position = new Organization.Position(DateUtil.of(startStrDate), endStrDate == null ? DateUtil.NOW : DateUtil.of(endStrDate.trim()), title.trim(), description);
+                                            positionList.add(position);
+                                        }
+                                    }
+                                    String orgUrl = getTrimmedParameter(request, "orgUrl" + sectionName + i);
+                                    Organization organization = new Organization(new Link(orgName.trim(), orgUrl), positionList);
+                                    organizationSection.addOrganization(organization);
+                                }
+                            }
+                        }
+                        if (organizationSection.getOrganizations().size() > 0) {
+                            resume.addSection(type, organizationSection);
+                        }
+                    } else {
+                        String orgName = request.getParameter("orgName" + sectionName);
+                        if (orgName != null && !orgName.trim().equals("")) {
+                            String orgUrl = getTrimmedParameter(request, "orgUrl" + sectionName);
+                            String title = request.getParameter("title" + sectionName);
+                            List<Organization.Position> positionList = new ArrayList<>();
+                            if (title != null && !title.trim().equals("")) {
+                                String endStrDate = request.getParameter("endDate" + sectionName);
+                                String startStrDate = getTrimmedParameter(request, "startDate" + sectionName);
+                                String description = getTrimmedParameter(request, "description" + sectionName);
+                                positionList.add(new Organization.Position(DateUtil.of(startStrDate), endStrDate == null ? DateUtil.NOW : DateUtil.of(endStrDate.trim()), title.trim(), description));
+                            }
+                            Organization organization = new Organization(new Link(orgName.trim(), orgUrl), positionList);
+                            OrganizationSection section = new OrganizationSection(organization);
+                            resume.addSection(type, section);
+                        }
+                    }
+                    break;
             }
         }
+    }
+
+    private String getTrimmedParameter(HttpServletRequest request, String name) {
+        return request.getParameter(name).trim();
     }
 }
