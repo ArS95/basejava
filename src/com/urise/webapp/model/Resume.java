@@ -65,12 +65,12 @@ public class Resume implements Serializable, Comparable<Resume> {
         sections.put(sectionType, section);
     }
 
-    public void deleteSection(SectionType type) {
-        sections.remove(type);
+    public void clearAllSections(){
+        sections.clear();
     }
 
-    public void deleteContact(ContactType type) {
-        contacts.remove(type);
+    public void clearAllContacts(){
+        contacts.clear();
     }
 
     @Override

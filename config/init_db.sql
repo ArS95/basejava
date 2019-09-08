@@ -4,12 +4,8 @@ create table resume
     uuid      char(36) not null
         constraint resume_pk
             primary key,
-    full_name text NOT NULL
+    full_name text     NOT NULL
 );
-
-alter table resume
-    owner to postgres;
-
 
 -- auto-generated definition
 create table contact
@@ -20,11 +16,8 @@ create table contact
     contact_type  text     not null,
     contact_value text     not null,
     resume_uuid   char(36) not null references resume (uuid)
-            on delete cascade
+        on delete cascade
 );
-
-alter table contact
-    owner to postgres;
 
 create unique index contact_resume_uuid_index
     on contact (resume_uuid, contact_type);
@@ -42,9 +35,6 @@ create table section
             references resume
             on delete cascade
 );
-
-alter table section
-    owner to postgres;
 
 create unique index section_uuid_type_index
     on section (resume_uuid, section_type);

@@ -1,4 +1,4 @@
-<%@ page import="com.urise.webapp.model.Organization.Position" %>
+<%@ page import="com.urise.webapp.util.DateUtil" %>
 <%@ page import="com.urise.webapp.model.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -71,7 +71,7 @@
                         <jsp:useBean id="position" type="com.urise.webapp.model.Organization.Position"/>
                         <table>
                             <tr>
-                                <td><%=position.getStartDate().format(Position.FORMAT) + "-" + position.getEndDate().format(Position.FORMAT)%>
+                                <td><%=position.getStartDate().format(DateUtil.FORMAT) + "-" + position.getEndDate().format(DateUtil.FORMAT)%>
                                 </td>
                                 <td><strong>${position.title}</strong></td>
                             </tr>

@@ -29,13 +29,14 @@ public class ResumeServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String uuid = request.getParameter("uuid");
 
-        if (uuid != null && !uuid.trim().equals("")) {
-            Resume resume = storage.get(uuid.trim());
-            resume.setFullName(request.getParameter("fullName"));
+        String fullName = request.getParameter("fullName");
+        if (uuid != null && !uuid.equals("")) {
+            Resume resume = storage.get(uuid);
+            resume.setFullName(fullName);
             addContactAndSection(resume, request);
             storage.update(resume);
         } else {
-            Resume resume = new Resume(request.getParameter("fullName"));
+            Resume resume = new Resume(fullName);
             addContactAndSection(resume, request);
             storage.save(resume);
         }
@@ -77,8 +78,8 @@ public class ResumeServlet extends HttpServlet {
     }
 
     private void addContact(Resume resume, HttpServletRequest request) {
+        resume.clearAllContacts();
         for (ContactType type : ContactType.values()) {
-            resume.deleteContact(type);
             String value = request.getParameter(type.name());
             if (value != null && !value.trim().equals("")) {
                 resume.addContact(type, value.trim());
@@ -87,8 +88,8 @@ public class ResumeServlet extends HttpServlet {
     }
 
     private void addSection(Resume resume, HttpServletRequest request) {
+        resume.clearAllSections();
         for (SectionType type : SectionType.values()) {
-            resume.deleteSection(type);
             String sectionName = type.name();
             switch (type) {
                 case PERSONAL:
@@ -103,9 +104,7 @@ public class ResumeServlet extends HttpServlet {
                 case ACHIEVEMENT:
                     String val = request.getParameter(sectionName);
                     if (val != null && !val.trim().equals("")) {
-                        MarkedTextSection markedTextSection = new MarkedTextSection(Arrays.stream(val.trim().split("\r\n"))
-                                .map(x -> x + "\r\n")
-                                .collect(Collectors.toList()));
+                        MarkedTextSection markedTextSection = new MarkedTextSection(val.split("\\n"));
                         resume.addSection(type, markedTextSection);
                     }
                     break;
@@ -125,12 +124,13 @@ public class ResumeServlet extends HttpServlet {
                                     List<Organization.Position> positionList = new ArrayList<>();
                                     for (int j = 0; j < sizePos + 1; j++) {
 
-                                        String title = request.getParameter("title" + sectionName + i + j);
+                                        String pfx = sectionName + i + j;
+                                        String title = request.getParameter("title" + pfx);
                                         if (title != null && !title.trim().equals("")) {
                                             Organization.Position position;
-                                            String endStrDate = request.getParameter("endDate" + sectionName + i + j);
-                                            String startStrDate = getTrimmedParameter(request, "startDate" + sectionName + i + j);
-                                            String description = getTrimmedParameter(request, "description" + sectionName + i + j);
+                                            String endStrDate = request.getParameter("endDate" + pfx);
+                                            String startStrDate = getTrimmedParameter(request, "startDate" + pfx);
+                                            String description = getTrimmedParameter(request, "description" + pfx);
                                             position = new Organization.Position(DateUtil.of(startStrDate), endStrDate == null ? DateUtil.NOW : DateUtil.of(endStrDate.trim()), title.trim(), description);
                                             positionList.add(position);
                                         }
